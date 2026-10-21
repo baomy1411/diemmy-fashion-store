@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Quản trị - Diễm My Fashion</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#0f0f11;color:#eee;margin:0;padding:16px}
+h1,h2{color:#d4af37}input,select,textarea,button{font:inherit;padding:8px;border-radius:6px;border:1px solid #444;background:#1e1e1e;color:#eee}
+button{cursor:pointer;background:#d4af37;color:#000;border:0;font-weight:600}button.g{background:#333;color:#eee}button.r{background:#a33;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid #333;padding:8px;text-align:left;vertical-align:top}
+.tabs{display:flex;gap:8px;margin:12px 0}.box{max-width:1100px;margin:auto;overflow-x:auto}
+form.p{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}form.p .w{grid-column:1/-1}
+.hide{display:none}
+</style></head><body><div class="box">
+<h1>Quản trị Diễm My Fashion</h1>
+<div id="login"><input id="pw" type="password" placeholder="Mật khẩu quản trị"> <button onclick="login()">Đăng nhập</button> <span id="err" style="color:#f66"></span></div>
+<div id="app" class="hide">
+<div class="tabs"><button onclick="tab('o')">Đơn hàng</button><button onclick="tab('p')">Sản phẩm</button><button class="g" onclick="logout()">Đăng xuất</button></div>
+<section id="o"><h2>Đơn hàng</h2><table id="ot"></table></section>
+<section id="p" class="hide"><h2>Sản phẩm</h2>
+<form class="p" id="pf" onsubmit="saveP(event)"><input type="hidden" name="id">
+<input name="name" placeholder="Tên sản phẩm *" required class="w"><select name="category"><option value="quan-ao">Quần áo</option><option value="tui-xach">Túi xách</option><option value="nuoc-hoa">Nước hoa</option><option value="giay-dep">Giày dép</option><option value="phu-kien">Phụ kiện</option></select>
+<input name="price" type="number" placeholder="Giá bán (đ) *" required><input name="originalPrice" type="number" placeholder="Giá gốc (đ)"><input name="badge" placeholder="Nhãn (HOT, MỚI...)">
+<input name="image" placeholder="Link ảnh sản phẩm *" required class="w"><input name="sizes" placeholder="Size, cách nhau dấu phẩy *" required><input name="colors" placeholder="Màu, cách nhau dấu phẩy *" required>
+<input name="material" placeholder="Chất liệu" class="w"><textarea name="desc" placeholder="Mô tả" class="w"></textarea>
+<div class="w"><button>Lưu sản phẩm</button> <button type="button" class="g" onclick="pf.reset();pf.id.value=''">Làm mới</button></div></form>
+<table id="pt"></table></section></div></div>
+<script>
+const $=s=>document.querySelector(s);let T=sessionStorage.getItem('dmt')||'',P=[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vnd=n=>Number(n).toLocaleString('vi-VN')+' đ';
+async function api(p,m='GET',body){const r=await fetch('/api'+p,{method:m,headers:{'Content-Type':'application/json','x-admin-token':T},body:body&&JSON.stringify(body)});
+ const d=await r.json();if(r.status===401&&T){logout();throw 0}if(!r.ok)throw new Error(d.error);return d}
+async function login(){try{const d=await api('/admin/login','POST',{password:$('#pw').value});T=d.token;sessionStorage.setItem('dmt',T);start()}catch(e){$('#err').textContent=e.message}}
+function logout(){T='';sessionStorage.removeItem('dmt');$('#app').classList.add('hide');$('#login').classList.remove('hide')}
+function tab(t){$('#o').classList.toggle('hide',t!='o');$('#p').classList.toggle('hide',t!='p')}
+async function start(){$('#login').classList.add('hide');$('#app').classList.remove('hide');await Promise.all([loadO(),loadP()])}
+const ST=['Mới','Đã xác nhận','Đang giao','Hoàn thành','Đã huỷ'];
+async function loadO(){const o=await api('/admin/orders');$('#ot').innerHTML='<tr><th>Mã / Giờ</th><th>Khách</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr>'+
+ o.map(x=>`<tr><td>${esc(x.id)}<br><small>${new Date(x.createdAt).toLocaleString('vi-VN')}</small></td><td>${esc(x.name)}<br><a style="color:#d4af37" href="tel:${esc(x.phone)}">${esc(x.phone)}</a><br><small>${esc(x.address)}</small>${x.notes?'<br><small>Ghi chú: '+esc(x.notes)+'</small>':''}</td>
+ <td>${x.items.map(i=>`${esc(i.name)} (${esc(i.size)}/${esc(i.color)}) x${i.qty}`).join('<br>')}</td><td>${vnd(x.total)}<br><small>${x.payment=='VIETQR'?'Chuyển khoản':'COD'}</small></td>
+ <td><select onchange="setS('${esc(x.id)}',this.value)">${ST.map(s=>`<option ${s==x.status?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')}
+async function setS(id,s){try{await api('/admin/orders/'+id,'PATCH',{status:s})}catch(e){alert(e.message)}}
+async function loadP(){P=await (await fetch('/api/products')).json();$('#pt').innerHTML='<tr><th>Tên</th><th>Giá</th><th></th></tr>'+
+ P.map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${vnd(p.price)}</td><td><button class="g" onclick="editP(${i})">Sửa</button> <button class="r" onclick="delP(${i})">Xoá</button></td></tr>`).join('')}
+function editP(i){const p=P[i],f=$('#pf');for(const k of ['id','name','category','price','originalPrice','badge','image','material','desc'])f[k].value=p[k]??'';f.sizes.value=p.sizes.join(', ');f.colors.value=p.colors.join(', ');scrollTo(0,0)}
+async function saveP(e){e.preventDefault();const f=e.target,b=Object.fromEntries(new FormData(f));b.sizes=b.sizes.split(',').map(s=>s.trim());b.colors=b.colors.split(',').map(s=>s.trim());
+ try{await api('/admin/products'+(b.id?'/'+b.id:''),b.id?'PUT':'POST',b);f.reset();f.id.value='';loadP()}catch(e){alert(e.message)}}
+async function delP(i){if(confirm('Xoá "'+P[i].name+'"?')){await api('/admin/products/'+P[i].id,'DELETE');loadP()}}
+$('#pw').addEventListener('keydown',e=>e.key=='Enter'&&login());if(T)start().catch(()=>{});
+</script></body></html>

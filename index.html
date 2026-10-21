@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diễm My Fashion - Luxury & High Fashion B2C Store</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#d4af37',
+                            hover: '#b5922a',
+                            light: '#fbf7eb',
+                            dark: '#8c701e'
+                        },
+                        dark: {
+                            DEFAULT: '#121212',
+                            surface: '#1e1e1e',
+                            card: '#252525'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-gold selection:text-black">
+
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 border-b border-gold/20 text-gold text-xs py-2 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
+            <div class="flex items-center space-x-2">
+                <span class="bg-gold/20 border border-gold/40 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-gold">Độc quyền</span>
+                <span>Chào mừng chị <strong>Diễm My</strong> | Nhập mã <span class="underline font-bold">DIEMMY10</span> giảm ngay 10% đơn đầu tiên!</span>
+            </div>
+            <div class="flex items-center space-x-6 text-neutral-300">
+                <span><i class="fas fa-phone-alt text-gold mr-1"></i> Hotline VIP: 1900 8888</span>
+                <span><i class="fas fa-shield-alt text-gold mr-1"></i> 100% Chính Hãng</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN NAVIGATION HEADER -->
+    <header class="sticky top-0 z-40 glass-nav border-b border-neutral-800 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="filterCategory('all')">
+                <div class="w-10 h-10 rounded-full border border-gold/60 flex items-center justify-center bg-neutral-900 text-gold font-serif-luxury font-bold text-xl shadow-lg">
+                    DM
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-serif-luxury font-bold tracking-widest text-white uppercase">
+                        Diễm My <span class="text-gold">Fashion</span>
+                    </h1>
+                    <p class="text-[10px] tracking-widest text-neutral-400 uppercase -mt-1">Haute Couture & Luxury Goods</p>
+                </div>
+            </div>
+
+            <!-- Search Bar (Desktop) -->
+            <div class="hidden md:flex flex-1 max-w-md mx-8 relative">
+                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Tìm kiếm váy, túi xách, nước hoa, phụ kiện cao cấp..." 
+                    class="w-full bg-neutral-900/80 border border-neutral-700/80 text-sm text-neutral-200 placeholder-neutral-500 rounded-full py-2.5 pl-5 pr-12 focus:outline-none focus:border-gold transition duration-200">
+                <button class="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-gold transition">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Header Actions (Wishlist, Cart, Mobile Menu) -->
+            <div class="flex items-center space-x-5">
+                
+                <!-- Wishlist Toggle Button -->
+                <button onclick="toggleWishlistModal()" class="relative text-neutral-300 hover:text-gold transition p-2">
+                    <i class="far fa-heart text-xl"></i>
+                    <span id="wishlist-badge" class="absolute -top-1 -right-1 bg-gold text-black font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+
+                <!-- Cart Toggle Button -->
+                <button onclick="toggleCartDrawer(true)" class="relative flex items-center space-x-2 bg-neutral-900 border border-neutral-700 hover:border-gold text-neutral-200 px-4 py-2 rounded-full transition group">
+                    <div class="relative">
+                        <i class="fas fa-shopping-bag text-gold group-hover:scale-110 transition duration-200"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-3 bg-gold text-black font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center border-2 border-black">0</span>
+                    </div>
+                    <span class="hidden sm:inline text-xs font-semibold uppercase tracking-wider pl-1">Giỏ Hàng</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Search Row -->
+        <div class="md:hidden px-4 pb-3">
+            <div class="relative">
+                <input type="text" id="mobileSearchInput" onkeyup="handleMobileSearch()" placeholder="Tìm kiếm sản phẩm..." 
+                    class="w-full bg-neutral-900 border border-neutral-700 text-sm text-neutral-200 placeholder-neutral-500 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:border-gold">
+                <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER SECTION WITH FLASH SALE TIMER -->
+    <section class="relative bg-neutral-950 overflow-hidden border-b border-neutral-800">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-neutral-800/40 via-neutral-950 to-neutral-950"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Hero Left Content -->
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <div class="inline-flex items-center space-x-2 bg-gold/10 border border-gold/30 px-3 py-1 rounded-full text-gold text-xs uppercase tracking-widest">
+                    <i class="fas fa-crown text-xs"></i>
+                    <span>Bộ Sưu Tập Thu Đông 2026</span>
+                </div>
+                <h2 class="text-3xl sm:text-5xl lg:text-6xl font-serif-luxury font-bold text-white tracking-wide leading-tight">
+                    Khẳng Định Đẳng Cấp <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gold via-amber-200 to-gold">Thượng Lưu</span>
+                </h2>
+                <p class="text-neutral-400 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed font-light">
+                    Tuyệt tác thiết kế dành riêng cho phái đẹp. Sự kết hợp hoàn hảo giữa chất liệu lụa satin cao cấp, da bò nappa và ngọc trai tự nhiên.
+                </p>
+
+                <!-- FLASH SALE COUNTDOWN BOX -->
+                <div class="bg-neutral-900/90 border border-gold/30 p-4 rounded-xl inline-block max-w-md w-full shadow-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-gold flex items-center">
+                            <i class="fas fa-bolt text-amber-400 mr-2 animate-pulse"></i> Flash Sale Độc Quyền
+                        </span>
+                        <span class="text-[11px] text-neutral-400">Kết thúc sau</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2 text-center" id="countdown-timer">
+                        <div class="bg-black/60 rounded p-1.5 border border-neutral-800">
+                            <span id="hours" class="block text-lg font-bold text-white">08</span>
+                            <span class="text-[9px] uppercase text-neutral-400">Giờ</span>
+                        </div>
+                        <div class="bg-black/60 rounded p-1.5 border border-neutral-800">
+                            <span id="minutes" class="block text-lg font-bold text-white">42</span>
+                            <span class="text-[9px] uppercase text-neutral-400">Phút</span>
+                        </div>
+                        <div class="bg-black/60 rounded p-1.5 border border-neutral-800">
+                            <span id="seconds" class="block text-lg font-bold text-amber-400">19</span>
+                            <span class="text-[9px] uppercase text-neutral-400">Giây</span>
+                        </div>
+                        <div class="bg-black/60 rounded p-1.5 border border-neutral-800">
+                            <span class="block text-lg font-bold text-red-400">-30%</span>
+                            <span class="text-[9px] uppercase text-neutral-400">Ưu Đãi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                    <button onclick="scrollToProducts()" class="bg-gold hover:bg-gold-hover text-black font-semibold px-8 py-3.5 rounded-full shadow-lg transition duration-300 uppercase text-xs tracking-widest flex items-center space-x-2">
+                        <span>Khám Phá Ngay</span>
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </button>
+                    <button onclick="filterCategory('tui-xach')" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 font-semibold px-6 py-3.5 rounded-full transition duration-300 text-xs tracking-widest uppercase">
+                        BST Túi Xách VIP
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hero Right Image Showcase -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="relative w-full max-w-md">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-gold to-amber-600 rounded-2xl blur opacity-25"></div>
+                    <div class="relative rounded-2xl overflow-hidden border border-gold/30 bg-neutral-900 shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800" alt="Diễm My Fashion Runway" class="w-full h-[420px] object-cover hover:scale-105 transition duration-700">
+                        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/60 to-transparent p-6">
+                            <span class="text-xs text-gold uppercase tracking-widest font-semibold">New Arrival</span>
+                            <h3 class="text-lg font-serif-luxury text-white">Đầm Dạ Hội Satin Bán Chạy Nhất</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORY NAVIGATION & FILTERING SECTION -->
+    <section id="products-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 w-full">
+        
+        <!-- Category Tabs -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-800 pb-6 mb-8">
+            <div class="flex flex-wrap items-center gap-2" id="category-tabs">
+                <!-- Dynamic Tabs rendered via JS -->
+            </div>
+
+            <!-- Price & Sorting Dropdowns -->
+            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                <!-- Filter Price Range -->
+                <select id="priceFilter" onchange="applyFilters()" class="bg-neutral-900 border border-neutral-700 text-neutral-300 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-gold">
+                    <option value="all">Tất cả mức giá</option>
+                    <option value="under-1m">Dưới 1,000,000đ</option>
+                    <option value="1m-3m">1,000,000đ - 3,000,000đ</option>
+                    <option value="above-3m">Trên 3,000,000đ</option>
+                </select>
+
+                <!-- Sort Filter -->
+                <select id="sortBy" onchange="applyFilters()" class="bg-neutral-900 border border-neutral-700 text-neutral-300 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-gold">
+                    <option value="default">Sắp xếp: Mặc định</option>
+                    <option value="price-asc">Giá: Thấp đến Cao</option>
+                    <option value="price-desc">Giá: Cao đến Thấp</option>
+                    <option value="rating">Đánh giá cao nhất</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- PRODUCTS GRID CONTAINER -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Dynamic Product Cards Injection -->
+        </div>
+
+        <!-- EMPTY STATE IF NO PRODUCTS MATCH -->
+        <div id="no-products" class="hidden text-center py-16">
+            <div class="w-16 h-16 bg-neutral-900 rounded-full flex items-center justify-center mx-auto text-neutral-500 mb-4">
+                <i class="fas fa-search text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-neutral-300">Không tìm thấy sản phẩm phù hợp</h3>
+            <p class="text-xs text-neutral-500 mt-1">Vui lòng thử bộ lọc khác hoặc từ khóa tìm kiếm khác.</p>
+            <button onclick="resetFilters()" class="mt-4 text-xs text-gold border border-gold/40 px-4 py-2 rounded-lg hover:bg-gold hover:text-black transition">Xóa bộ lọc</button>
+        </div>
+    </section>
+
+    <!-- FOOTER SECTION -->
+    <footer class="bg-neutral-950 border-t border-neutral-800 text-neutral-400 text-sm mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <h3 class="text-white font-serif-luxury text-lg font-bold uppercase tracking-wider">Diễm My <span class="text-gold">Fashion</span></h3>
+                <p class="text-xs leading-relaxed text-neutral-400">
+                    Thương hiệu thời trang & phụ kiện sang trọng dẫn đầu xu hướng. Mang đến trải nghiệm mua sắm thượng lưu chuẩn quốc tế cho người tiêu dùng Việt Nam.
+                </p>
+                <div class="flex space-x-3 text-neutral-300">
+                    <a href="#" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-700 flex items-center justify-center hover:text-gold hover:border-gold transition"><i class="fab fa-facebook-f text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-700 flex items-center justify-center hover:text-gold hover:border-gold transition"><i class="fab fa-instagram text-xs"></i></a>
+                    <a href="#" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-700 flex items-center justify-center hover:text-gold hover:border-gold transition"><i class="fab fa-tiktok text-xs"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-4">Danh Mục Sản Phẩm</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" onclick="filterCategory('quan-ao')" class="hover:text-gold transition">Quần Áo & Đầm Dạ Hội</a></li>
+                    <li><a href="#" onclick="filterCategory('tui-xach')" class="hover:text-gold transition">Túi Xách Da Cao Cấp</a></li>
+                    <li><a href="#" onclick="filterCategory('nuoc-hoa')" class="hover:text-gold transition">Nước Hoa Niche</a></li>
+                    <li><a href="#" onclick="filterCategory('giay-dep')" class="hover:text-gold transition">Giày Cao Gót & Boot</a></li>
+                    <li><a href="#" onclick="filterCategory('phu-kien')" class="hover:text-gold transition">Trang Sức & Phụ Kiện</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-4">Chăm Sóc Khách Hàng</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" class="hover:text-gold transition">Hướng dẫn chọn Size</a></li>
+                    <li><a href="#" class="hover:text-gold transition">Chính sách đổi trả 30 ngày</a></li>
+                    <li><a href="#" class="hover:text-gold transition">Chính sách bảo mật</a></li>
+                    <li><a href="#" class="hover:text-gold transition">Bảo hành sản phẩm trọn đời</a></li>
+                    <li><a href="#" class="hover:text-gold transition">Tra cứu đơn hàng</a></li>
+                </ul>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-4">Liên Hệ Điều Hành</h4>
+                <p class="text-xs"><strong class="text-neutral-200">Tổng Phụ Trách:</strong> Bà Diễm My</p>
+                <p class="text-xs"><strong class="text-neutral-200">Địa chỉ:</strong> 188 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh</p>
+                <p class="text-xs"><strong class="text-neutral-200">Email:</strong> cskh@diemmyfashion.vn</p>
+                <div class="p-3 bg-neutral-900 rounded-lg border border-neutral-800 text-xs">
+                    <span class="text-gold font-semibold block mb-1">Hỗ trợ VIP 24/7</span>
+                    <span class="text-neutral-300">Hotline: 0900 123 456</span>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-neutral-900 py-4 text-center text-xs text-neutral-600">
+            &copy; 2026 Diễm My Fashion Enterprise. All Rights Reserved. Designed for B2C E-Commerce Excellence.
+        </div>
+    </footer>
+
+    <!-- MODAL: QUICK VIEW / PRODUCT DETAILS -->
+    <div id="quickViewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 modal-blur opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-neutral-900 border border-gold/40 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative transform scale-95 transition-all duration-300 max-h-[90vh] flex flex-col md:flex-row" id="quickViewContent">
+            <!-- Dynamic Content Injected By JS -->
+        </div>
+    </div>
+
+    <!-- CART DRAWER -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 bg-black/70 modal-blur opacity-0 pointer-events-none transition-all duration-300">
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-neutral-900 border-l border-neutral-800 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300" id="cartDrawerPanel">
+            
+            <!-- Cart Header -->
+            <div class="p-5 border-b border-neutral-800 flex items-center justify-between bg-neutral-950">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-shopping-bag text-gold"></i>
+                    <h3 class="text-base font-bold text-white uppercase tracking-wider">Giỏ Hàng Của Bạn</h3>
+                </div>
+                <button onclick="toggleCartDrawer(false)" class="text-neutral-400 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items List -->
+            <div id="cartDrawerItems" class="flex-1 overflow-y-auto p-5 space-y-4 divide-y divide-neutral-800">
+                <!-- Cart items rendered here -->
+            </div>
+
+            <!-- Cart Footer Summary -->
+            <div class="p-5 border-t border-neutral-800 bg-neutral-950 space-y-3">
+                
+                <!-- Voucher Input -->
+                <div class="flex gap-2">
+                    <input type="text" id="voucherInput" placeholder="Mã giảm giá (ví dụ: DIEMMY10)" 
+                        class="flex-1 bg-neutral-900 border border-neutral-700 text-xs text-white uppercase px-3 py-2 rounded focus:outline-none focus:border-gold">
+                    <button onclick="applyVoucher()" class="bg-neutral-800 hover:bg-gold hover:text-black text-neutral-200 text-xs font-semibold px-4 rounded transition">Áp dụng</button>
+                </div>
+
+                <div class="space-y-1 text-xs text-neutral-400 pt-2">
+                    <div class="flex justify-between">
+                        <span>Tạm tính:</span>
+                        <span id="cartSubtotal" class="text-neutral-200">0 đ</span>
+                    </div>
+                    <div class="flex justify-between text-gold">
+                        <span>Giảm giá (Voucher):</span>
+                        <span id="cartDiscount">-0 đ</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Phí vận chuyển:</span>
+                        <span id="cartShipping" class="text-neutral-200">0 đ</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-neutral-800">
+                        <span>Tổng tiền thanh toán:</span>
+                        <span id="cartTotal" class="text-gold">0 đ</span>
+                    </div>
+                </div>
+
+                <button onclick="openCheckoutModal()" class="w-full bg-gold hover:bg-gold-hover text-black font-bold py-3 rounded-lg shadow-lg uppercase text-xs tracking-widest transition duration-200">
+                    Tiến Hành Thanh Toán
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CHECKOUT & VIETQR -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 modal-blur opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-neutral-900 border border-gold/40 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl relative p-6 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 text-neutral-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h3 class="text-xl font-serif-luxury font-bold text-white mb-1">Thông Tin Giao Hàng & Thanh Toán</h3>
+            <p class="text-xs text-neutral-400 mb-6">Vui lòng điền thông tin để hoàn tất đơn hàng B2C cao cấp.</p>
+
+            <form id="checkoutForm" onsubmit="processOrder(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-neutral-300 mb-1">Họ và Tên *</label>
+                        <input type="text" id="custName" required placeholder="Nguyễn Văn A" class="w-full bg-neutral-950 border border-neutral-800 text-xs text-white p-2.5 rounded focus:border-gold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-neutral-300 mb-1">Số Điện Thoại *</label>
+                        <input type="tel" id="custPhone" required placeholder="0901234567" class="w-full bg-neutral-950 border border-neutral-800 text-xs text-white p-2.5 rounded focus:border-gold focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-300 mb-1">Địa Chỉ Nhận Hàng *</label>
+                    <input type="text" id="custAddress" required placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/TP" class="w-full bg-neutral-950 border border-neutral-800 text-xs text-white p-2.5 rounded focus:border-gold focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-300 mb-1">Ghi Chú Đơn Hàng (Không bắt buộc)</label>
+                    <textarea id="custNotes" rows="2" placeholder="Giao giờ hành chính, gọi trước khi giao..." class="w-full bg-neutral-950 border border-neutral-800 text-xs text-white p-2 rounded focus:border-gold focus:outline-none"></textarea>
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div class="pt-2">
+                    <label class="block text-xs font-semibold text-neutral-300 mb-2">Phương Thức Thanh Toán</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="border border-neutral-800 bg-neutral-950 p-3 rounded-lg flex items-center space-x-2 cursor-pointer hover:border-gold transition">
+                            <input type="radio" name="paymentMethod" value="COD" checked onclick="togglePaymentView('COD')" class="text-gold focus:ring-gold">
+                            <div class="text-xs">
+                                <span class="font-bold text-white block">COD (Tiền mặt)</span>
+                                <span class="text-[10px] text-neutral-500">Thanh toán khi nhận hàng</span>
+                            </div>
+                        </label>
+                        <label class="border border-neutral-800 bg-neutral-950 p-3 rounded-lg flex items-center space-x-2 cursor-pointer hover:border-gold transition">
+                            <input type="radio" name="paymentMethod" value="VIETQR" onclick="togglePaymentView('VIETQR')" class="text-gold focus:ring-gold">
+                            <div class="text-xs">
+                                <span class="font-bold text-gold block">Chuyển Khoản VietQR</span>
+                                <span class="text-[10px] text-neutral-500">Quét mã QR tự động</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- VIETQR Dynamic Display Box -->
+                <div id="vietqrContainer" class="hidden bg-neutral-950 border border-gold/40 p-4 rounded-xl text-center space-y-3">
+                    <span class="text-xs text-gold uppercase font-bold tracking-wider block">Mã QR Thanh Toán Tự Động VietQR</span>
+                    <div class="flex justify-center">
+                        <img id="vietqrImg" src="" alt="VietQR Payment Code" class="w-48 h-48 border border-white/10 rounded-lg shadow-md">
+                    </div>
+                    <div class="text-xs text-neutral-300 space-y-1">
+                        <p>Ngân hàng: <strong class="text-white">MB BANK (Ngân Hàng Quân Đội)</strong></p>
+                        <p>Số tài khoản: <strong id="qrAccount" class="text-gold">0900123456789</strong></p>
+                        <p>Chủ tài khoản: <strong class="text-white">CTY DIEM MY FASHION</strong></p>
+                        <p>Nội dung chuyển khoản: <strong id="qrMemo" class="text-amber-400">DMF12345</strong></p>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-between items-center border-t border-neutral-800">
+                    <div>
+                        <span class="text-xs text-neutral-400 block">Tổng tiền thanh toán:</span>
+                        <span id="checkoutTotalAmount" class="text-lg font-bold text-gold">0 đ</span>
+                    </div>
+                    <button type="submit" class="bg-gold hover:bg-gold-hover text-black font-bold px-6 py-3 rounded-lg text-xs uppercase tracking-wider transition">
+                        Xác Nhận Đặt Hàng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ORDER SUCCESS -->
+    <div id="successModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 modal-blur opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-neutral-900 border border-gold rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
+            <div class="w-16 h-16 bg-gold/20 text-gold rounded-full flex items-center justify-center mx-auto text-2xl border border-gold/50">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 class="text-2xl font-serif-luxury font-bold text-white">Đặt Hàng Thành Công!</h3>
+            <p class="text-xs text-neutral-300 leading-relaxed">
+                Cảm ơn bạn đã lựa chọn <strong class="text-gold">Diễm My Fashion</strong>. Đơn hàng của bạn đã được tiếp nhận và đang được bộ phận vận hành xử lý.
+            </p>
+            <div class="bg-neutral-950 p-3 rounded-lg text-left text-xs space-y-1 text-neutral-400 border border-neutral-800">
+                <p>Mã đơn hàng: <strong id="successOrderId" class="text-white">#DMF-999</strong></p>
+                <p>Khách hàng: <strong id="successCustomerName" class="text-white">--</strong></p>
+                <p>Tổng tiền: <strong id="successTotalAmount" class="text-gold">--</strong></p>
+            </div>
+            <button onclick="closeSuccessModal()" class="w-full bg-gold text-black font-bold py-3 rounded-lg text-xs uppercase tracking-wider hover:bg-gold-hover transition">
+                Tiếp Tục Mua Sắm
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

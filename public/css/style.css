@@ -1,0 +1,37 @@
+/* Custom Custom Scrollbar & Luxury Glow Effects */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f11;
+            color: #f3f4f6;
+        }
+        .font-serif-luxury {
+            font-family: 'Playfair Display', serif;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+        .gold-border-glow:hover {
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+        }
+        .glass-nav {
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Custom modal animation */
+        .modal-blur {
+            backdrop-filter: blur(8px);
+        }

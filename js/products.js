@@ -1,0 +1,117 @@
+/* ==========================================================================
+           PRODUCT CATALOG DATABASE (E-COMMERCE B2C REALISTIC DATA)
+           ========================================================================== */
+        const products = [
+            {
+                id: 'DMF-001',
+                name: 'Đầm Dạ Hội Satin Silk Luxury',
+                category: 'quan-ao',
+                price: 3250000,
+                originalPrice: 4200000,
+                rating: 5.0,
+                badge: 'FLASH SALE',
+                image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=600',
+                sizes: ['S', 'M', 'L'],
+                colors: ['Đen Tuyền', 'Đỏ Ruby', 'Vàng Champange'],
+                material: 'Lụa Satin nhập khẩu Ý',
+                desc: 'Thiết kế ôm dáng quyến rũ kết hợp đường xẻ tà tinh tế. Phù hợp cho các buổi dạ tiệc tiệc cao cấp và sự kiện thảm đỏ.'
+            },
+            {
+                id: 'DMF-002',
+                name: 'Túi Xách Da Bò Nappa Lady Monogram',
+                category: 'tui-xach',
+                price: 4850000,
+                originalPrice: 5500000,
+                rating: 4.9,
+                badge: 'BÁN CHẠY',
+                image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600',
+                sizes: ['Standard'],
+                colors: ['Đen Gold', 'Trắng Kem'],
+                material: 'Da Bò Nappa Nguyên Tấm & Khóa Mạ Vàng 18K',
+                desc: 'Mẫu túi biểu tượng thời trang tôn vinh nét quyến rũ sang trọng của phái đẹp. Kèm dây quai xích tùy chỉnh.'
+            },
+            {
+                id: 'DMF-003',
+                name: 'Nước Hoa Diễm My - Elixir De Parfum 100ml',
+                category: 'nuoc-hoa',
+                price: 2450000,
+                originalPrice: 2900000,
+                rating: 5.0,
+                badge: 'MỚI',
+                image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=600',
+                sizes: ['100ml'],
+                colors: ['Hổ Phách'],
+                material: 'Hương Hoa Diên Vĩ, Gỗ Đàn Hương & Mật Ong',
+                desc: 'Mùi hương độc quyền mang dấu ấn quý phái, lưu hương tới 12 giờ liên tục. Phong cách nữ hoàng quyến rũ.'
+            },
+            {
+                id: 'DMF-004',
+                name: 'Giày Cao Gót Stiletto Mạ Vàng 9cm',
+                category: 'giay-dep',
+                price: 1850000,
+                originalPrice: 2200000,
+                rating: 4.8,
+                badge: 'HOT',
+                image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600',
+                sizes: ['35', '36', '37', '38', '39'],
+                colors: ['Vàng Gold', 'Đen Glossy'],
+                material: 'Da bóng đính đá Swarovski & gót kim loại',
+                desc: 'Gót nhọn thanh thoát tôn dáng cực đỉnh, lót đệm êm ái hỗ trợ di chuyển cả ngày mà không mỏi chân.'
+            },
+            {
+                id: 'DMF-005',
+                name: 'Kính Mát Cat-Eye Mạ Vàng Chống UV400',
+                category: 'phu-kien',
+                price: 950000,
+                originalPrice: 1300000,
+                rating: 4.7,
+                badge: 'NEW',
+                image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=600',
+                sizes: ['Free Size'],
+                colors: ['Gọng Vàng - Tròng Đen'],
+                material: 'Tròng kính Polarized chống chói',
+                desc: 'Phong cách gọng mắt mèo kiêu kỳ cá tính. Bảo vệ đôi mắt tuyệt đối khỏi tia tử ngoại UV400.'
+            },
+            {
+                id: 'DMF-006',
+                name: 'Áo Veston Nu-Classic Cắt Tinh Tế',
+                category: 'quan-ao',
+                price: 2150000,
+                originalPrice: 2600000,
+                rating: 4.9,
+                badge: 'BEST',
+                image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600',
+                sizes: ['S', 'M', 'L'],
+                colors: ['Trắng Ngọc Trại', 'Đen Onyx'],
+                material: 'Kaki Tuyết Mới Đứng Form',
+                desc: 'Set áo Blazer công sở nữ cao cấp. Đường kim mũi chỉ sắc sảo khẳng định khí chất thần thái lãnh đạo.'
+            },
+            {
+                id: 'DMF-007',
+                name: 'Túi Clutches Cầm Tay Dạ Hội Đính Đá',
+                category: 'tui-xach',
+                price: 1950000,
+                originalPrice: 2400000,
+                rating: 4.9,
+                badge: 'LUXURY',
+                image: 'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?q=80&w=600',
+                sizes: ['Compact'],
+                colors: ['Bạc Phủ Đá', 'Vàng Ánh Kim'],
+                material: 'Đá pha lê pha kim loại sáng bóng',
+                desc: 'Điểm nhấn lung linh hoàn hảo cho trang phục tiệc tối của quý cô.'
+            },
+            {
+                id: 'DMF-008',
+                name: 'Vòng Tay Ngọc Trai Biển Nam Hải',
+                category: 'phu-kien',
+                price: 3600000,
+                originalPrice: 4200000,
+                rating: 5.0,
+                badge: 'LIMITED',
+                image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=600',
+                sizes: ['Standard'],
+                colors: ['Trắng Ánh Hồng'],
+                material: 'Ngọc Trai Tự Nhiên & Khóa Vàng 14K',
+                desc: 'Chế tác giới hạn, biểu tượng của sự thuần khiết, thanh cao và quyền quý.'
+            }
+        ];
