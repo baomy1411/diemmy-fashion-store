@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express'), fs = require('fs'), path = require('path'), crypto = require('crypto');
+const { MongoClient } = require('mongodb');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+if (!process.env.MONGODB_URI) { console.error('Thiếu MONGODB_URI'); process.exit(1); }
 if (!ADMIN_PASSWORD || ADMIN_PASSWORD.length < 8) { console.error('Thiếu ADMIN_PASSWORD (>= 8 ký tự) trong file .env'); process.exit(1); }
 
 // Cấu hình giá trị đơn hàng (PHẢI khớp public/js/config.js)
@@ -29,9 +31,9 @@ function notifyOrder(o) {
 app.use(express.json({ limit: '100kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const F = n => path.join(__dirname, 'data', n + '.json');
-const load = n => { try { return JSON.parse(fs.readFileSync(F(n), 'utf8')); } catch { return []; } };
-const save = (n, d) => fs.writeFileSync(F(n), JSON.stringify(d, null, 2));
+let Products, Orders;
+const NOID = { projection: { _id: 0 } };
+const wrap = fn => (req, res) => fn(req, res).catch(e => { console.error(e); res.status(500).json({ error: 'Lỗi máy chủ, thử lại sau' }); });
 const str = (v, max = 300) => String(v ?? '').trim().slice(0, max);
 
 // ---- Quản trị: đăng nhập bằng mật khẩu, nhận token tạm ----
@@ -53,7 +55,7 @@ const auth = (req, res, next) => {
 };
 
 // ---- Sản phẩm ----
-app.get('/api/products', (req, res) => res.json(load('products')));
+app.get('/api/products', wrap(async (req, res) => res.json(await Products.find({}, NOID).sort({ _id: 1 }).toArray())));
 const cleanProduct = (b, id) => ({
   id, name: str(b.name, 150), category: str(b.category, 30),
   price: Math.max(0, Number(b.price) || 0), originalPrice: Math.max(0, Number(b.originalPrice) || 0),
@@ -62,27 +64,30 @@ const cleanProduct = (b, id) => ({
   colors: [].concat(b.colors || []).map(s => str(s, 40)).filter(Boolean),
   material: str(b.material, 150), desc: str(b.desc, 800)
 });
-app.post('/api/admin/products', auth, (req, res) => {
-  const list = load('products'), p = cleanProduct(req.body, 'DMF-' + Date.now().toString().slice(-6));
+app.post('/api/admin/products', auth, wrap(async (req, res) => {
+  const p = cleanProduct(req.body, 'DMF-' + Date.now().toString().slice(-6));
   if (!p.name || !p.price || !p.sizes.length || !p.colors.length) return res.status(400).json({ error: 'Thiếu tên, giá, size hoặc màu' });
-  list.push(p); save('products', list); res.json(p);
-});
-app.put('/api/admin/products/:id', auth, (req, res) => {
-  const list = load('products'), i = list.findIndex(p => p.id === req.params.id);
-  if (i < 0) return res.status(404).json({ error: 'Không tìm thấy' });
-  list[i] = cleanProduct(req.body, list[i].id); save('products', list); res.json(list[i]);
-});
-app.delete('/api/admin/products/:id', auth, (req, res) => {
-  save('products', load('products').filter(p => p.id !== req.params.id)); res.json({ ok: true });
-});
+  await Products.insertOne({ ...p }); res.json(p);
+}));
+app.put('/api/admin/products/:id', auth, wrap(async (req, res) => {
+  const p = cleanProduct(req.body, req.params.id);
+  const r = await Products.replaceOne({ id: p.id }, p);
+  if (!r.matchedCount) return res.status(404).json({ error: 'Không tìm thấy' });
+  res.json(p);
+}));
+app.delete('/api/admin/products/:id', auth, wrap(async (req, res) => {
+  await Products.deleteOne({ id: req.params.id }); res.json({ ok: true });
+}));
 
 // ---- Đơn hàng: server tự tính lại tiền, không tin giá từ trình duyệt ----
-app.post('/api/orders', (req, res) => {
-  const b = req.body, products = load('products'), items = [];
+app.post('/api/orders', wrap(async (req, res) => {
+  const b = req.body, items = [];
   const phone = str(b.phone, 15).replace(/\s/g, '');
   if (!str(b.name) || !str(b.address) || !/^(0|\+84)\d{9}$/.test(phone)) return res.status(400).json({ error: 'Thông tin giao hàng chưa hợp lệ' });
-  for (const it of [].concat(b.items || []).slice(0, 50)) {
-    const p = products.find(x => x.id === it.id), qty = Math.floor(Number(it.qty));
+  const cart = [].concat(b.items || []).slice(0, 50);
+  const found = await Products.find({ id: { $in: cart.map(i => str(i.id, 30)) } }, NOID).toArray();
+  for (const it of cart) {
+    const p = found.find(x => x.id === it.id), qty = Math.floor(Number(it.qty));
     if (!p || !(qty >= 1 && qty <= 99)) return res.status(400).json({ error: 'Sản phẩm trong giỏ không hợp lệ' });
     items.push({ id: p.id, name: p.name, price: p.price, size: str(it.size, 20), color: str(it.color, 40), qty });
   }
@@ -91,20 +96,34 @@ app.post('/api/orders', (req, res) => {
   const rate = CFG.vouchers[str(b.voucher, 30).toUpperCase()] || 0;
   const discount = Math.round(subtotal * rate), after = subtotal - discount;
   const shipping = after >= CFG.freeShip ? 0 : CFG.shipFee;
-  const orders = load('orders');
-  let id = str(b.orderId, 12); if (!/^DMF\d{6}$/.test(id) || orders.some(o => o.id === id)) id = 'DMF' + Date.now().toString().slice(-6);
+  let id = str(b.orderId, 12);
+  if (!/^DMF\d{6}$/.test(id) || await Orders.findOne({ id })) id = 'DMF' + Date.now().toString().slice(-6);
   const order = { id, name: str(b.name, 100), phone, address: str(b.address, 300), notes: str(b.notes, 500),
     payment: b.payment === 'VIETQR' ? 'VIETQR' : 'COD', items, subtotal, discount, shipping, total: after + shipping,
     status: 'Mới', createdAt: new Date().toISOString() };
-  orders.push(order); save('orders', orders); notifyOrder(order);
+  await Orders.insertOne({ ...order }); notifyOrder(order);
   res.json({ id: order.id, total: order.total });
-});
+}));
 const STATUS = ['Mới', 'Đã xác nhận', 'Đang giao', 'Hoàn thành', 'Đã huỷ'];
-app.get('/api/admin/orders', auth, (req, res) => res.json(load('orders').reverse()));
-app.patch('/api/admin/orders/:id', auth, (req, res) => {
-  const list = load('orders'), o = list.find(x => x.id === req.params.id);
-  if (!o || !STATUS.includes(req.body.status)) return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
-  o.status = req.body.status; save('orders', list); res.json(o);
-});
+app.get('/api/admin/orders', auth, wrap(async (req, res) => res.json(await Orders.find({}, NOID).sort({ createdAt: -1 }).limit(500).toArray())));
+app.patch('/api/admin/orders/:id', auth, wrap(async (req, res) => {
+  if (!STATUS.includes(req.body.status)) return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
+  const r = await Orders.updateOne({ id: req.params.id }, { $set: { status: req.body.status } });
+  if (!r.matchedCount) return res.status(404).json({ error: 'Không tìm thấy đơn' });
+  res.json({ ok: true });
+}));
 
-app.listen(process.env.PORT || 3000, () => console.log('Chạy tại http://localhost:' + (process.env.PORT || 3000)));
+// ---- Kết nối MongoDB rồi mới mở cổng ----
+(async () => {
+  const client = new MongoClient(process.env.MONGODB_URI);
+  await client.connect();
+  const db = client.db(process.env.MONGODB_DB || 'diemmy');
+  Products = db.collection('products'); Orders = db.collection('orders');
+  await Products.createIndex({ id: 1 }, { unique: true });
+  await Orders.createIndex({ id: 1 }, { unique: true });
+  if (await Products.countDocuments() === 0) {            // lần đầu: nhập sản phẩm mẫu
+    const seed = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'products.json'), 'utf8'));
+    await Products.insertMany(seed); console.log('Đã nhập', seed.length, 'sản phẩm mẫu');
+  }
+  app.listen(process.env.PORT || 3000, () => console.log('Chạy tại cổng ' + (process.env.PORT || 3000)));
+})().catch(e => { console.error('Không kết nối được MongoDB:', e.message); process.exit(1); });
