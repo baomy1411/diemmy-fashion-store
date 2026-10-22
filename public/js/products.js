@@ -1,7 +1,7 @@
 /* ==========================================================================
            PRODUCT CATALOG DATABASE (E-COMMERCE B2C REALISTIC DATA)
            ========================================================================== */
-        const products = [
+        let products = [
             {
                 id: 'DMF-001',
                 name: 'Đầm Dạ Hội Satin Silk Luxury',
