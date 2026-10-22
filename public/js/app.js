@@ -547,11 +547,35 @@ document.addEventListener('keydown', e => {
     closeQuickView(); closeCheckoutModal(); closeSuccessModal(); toggleCartDrawer(false);
 });
 
-// Luôn lấy sản phẩm mới nhất từ máy chủ (khi mở trang, mỗi 30 giây, và khi quay lại tab)
+// Luôn lấy sản phẩm mới nhất từ máy chủ
 let _productsSig = '';
 function loadProducts() {
     return fetch('/api/products', { cache: 'no-store' })
-        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(list => { const sig = JSON.stringify(list); if (sig === _productsSig) return; _productsSig = sig; products = list; applyFilters(); })
-        .catch(err => { console.error('Không tải được sản phẩm:', err); if (!_productsSig) { _productsSig = 'static'; applyFilters(); } });
+        .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(list => {
+            if (!Array.isArray(list)) return;
+            const sig = JSON.stringify(list);
+            if (sig === _productsSig) return;
+            _productsSig = sig;
+            
+            // Cập nhật mảng sản phẩm
+            if (typeof products !== 'undefined') {
+                products.length = 0;
+                products.push(...list);
+            } else {
+                window.products = list;
+            }
+            
+            if (typeof applyFilters === 'function') {
+                applyFilters();
+            } else if (typeof renderProducts === 'function') {
+                renderProducts(list);
+            }
+        })
+        .catch(err => {
+            console.error('Không tải được sản phẩm:', err);
+        });
 }
