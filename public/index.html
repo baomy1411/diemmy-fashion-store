@@ -83,6 +83,9 @@
             <div class="flex items-center space-x-5">
                 
                 <!-- Wishlist Toggle Button -->
+                <button id="accountBtn" onclick="openAuth()" class="relative flex items-center gap-2 text-neutral-300 hover:text-gold transition p-2">
+                    <i class="far fa-user text-xl"></i><span id="accountLabel" class="hidden lg:inline text-xs font-semibold uppercase tracking-wider">Đăng nhập</span>
+                </button>
                 <button onclick="toggleWishlistModal()" class="relative text-neutral-300 hover:text-gold transition p-2">
                     <i class="far fa-heart text-xl"></i>
                     <span id="wishlist-badge" class="absolute -top-1 -right-1 bg-gold text-black font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
@@ -448,5 +451,60 @@
     <script src="js/config.js"></script>
     <script src="js/products.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+
+    <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 modal-blur opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeAuth()" class="absolute top-3 right-4 text-neutral-400 hover:text-gold text-2xl">&times;</button>
+            <div id="authLogin">
+                <h3 class="text-xl font-bold text-gold mb-4">Đăng nhập</h3>
+                <form onsubmit="doLogin(event)">
+                    <input id="lEmail" required placeholder="Email" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <input id="lPass" type="password" required placeholder="Mật khẩu" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <p id="lMsg" class="text-red-400 text-sm mb-2"></p>
+                    <button class="w-full bg-gold text-black font-semibold py-2 rounded-lg hover:opacity-90">Đăng nhập</button>
+                </form>
+                <p class="text-sm text-center mt-3"><a href="#" onclick="authView('Forgot');return false" class="text-neutral-400 hover:text-gold">Quên mật khẩu?</a></p>
+                <p class="text-sm text-neutral-400 mt-4 text-center">Chưa có tài khoản? <a href="#" onclick="authView('Register');return false" class="text-gold">Đăng ký</a></p>
+            </div>
+            <div id="authRegister" class="hidden">
+                <h3 class="text-xl font-bold text-gold mb-4">Đăng ký tài khoản</h3>
+                <form onsubmit="doRegister(event)">
+                    <input id="rName" required placeholder="Họ và tên" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <input id="rEmail" type="email" required placeholder="Email" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <input id="rPhone" placeholder="Số điện thoại (không bắt buộc)" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <input id="rPass" type="password" required minlength="8" placeholder="Mật khẩu (tối thiểu 8 ký tự)" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <p id="rMsg" class="text-red-400 text-sm mb-2"></p>
+                    <button class="w-full bg-gold text-black font-semibold py-2 rounded-lg hover:opacity-90">Tạo tài khoản</button>
+                </form>
+                <p class="text-sm text-neutral-400 mt-4 text-center">Đã có tài khoản? <a href="#" onclick="authView('Login');return false" class="text-gold">Đăng nhập</a></p>
+            </div>
+            <div id="authForgot" class="hidden">
+                <h3 class="text-xl font-bold text-gold mb-2">Quên mật khẩu</h3>
+                <p class="text-sm text-neutral-400 mb-4">Nhập email đã đăng ký, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.</p>
+                <form onsubmit="doForgot(event)">
+                    <input id="fEmail" type="email" required placeholder="Email" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <p id="fMsg" class="text-sm mb-2"></p>
+                    <button class="w-full bg-gold text-black font-semibold py-2 rounded-lg hover:opacity-90">Gửi liên kết</button>
+                </form>
+                <p class="text-sm text-center mt-4"><a href="#" onclick="authView('Login');return false" class="text-gold">Quay lại đăng nhập</a></p>
+            </div>
+            <div id="authReset" class="hidden">
+                <h3 class="text-xl font-bold text-gold mb-4">Đặt mật khẩu mới</h3>
+                <form onsubmit="doReset(event)">
+                    <input id="nPass" type="password" required minlength="8" placeholder="Mật khẩu mới (tối thiểu 8 ký tự)" class="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:outline-none focus:border-gold mb-3">
+                    <p id="nMsg" class="text-red-400 text-sm mb-2"></p>
+                    <button class="w-full bg-gold text-black font-semibold py-2 rounded-lg hover:opacity-90">Đổi mật khẩu</button>
+                </form>
+            </div>
+            <div id="authAccount" class="hidden">
+                <h3 class="text-xl font-bold text-gold mb-1">Xin chào, <span id="accName"></span></h3>
+                <a id="adminLink" href="/admin.html" class="hidden block text-center bg-gold text-black font-semibold py-2 rounded-lg my-3">Vào trang quản trị</a>
+                <h4 class="text-sm font-semibold text-neutral-300 mt-4 mb-2 uppercase tracking-wider">Đơn hàng của tôi</h4>
+                <div id="myOrders" class="space-y-3 text-sm text-neutral-300"></div>
+                <button onclick="doLogout()" class="w-full mt-5 border border-neutral-700 text-neutral-300 py-2 rounded-lg hover:border-gold">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

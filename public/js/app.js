@@ -23,8 +23,9 @@ let activeVoucherCode = '';
            ========================================================================== */
         document.addEventListener('DOMContentLoaded', () => {
             renderCategoryTabs();
-            renderProducts(products);
-        fetch('/api/products').then(r => r.json()).then(list => { if (list.length) { products = list; applyFilters(); } }).catch(() => {});
+            loadProducts();
+            setInterval(loadProducts, 30000);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) loadProducts(); });
             updateCartBadge();
             updateWishlistBadge();
             startFlashSaleCountdown();
@@ -491,7 +492,7 @@ function calculateCartTotals() {
     btn.disabled = true;
     try {
         const res = await fetch('/api/orders', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
             body: JSON.stringify({
                 orderId: currentOrderId, phone, voucher: activeVoucherCode,
                 name: document.getElementById('custName').value, address: document.getElementById('custAddress').value,
@@ -545,3 +546,12 @@ document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     closeQuickView(); closeCheckoutModal(); closeSuccessModal(); toggleCartDrawer(false);
 });
+
+// Luôn lấy sản phẩm mới nhất từ máy chủ (khi mở trang, mỗi 30 giây, và khi quay lại tab)
+let _productsSig = '';
+function loadProducts() {
+    return fetch('/api/products', { cache: 'no-store' })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(list => { const sig = JSON.stringify(list); if (sig === _productsSig) return; _productsSig = sig; products = list; applyFilters(); })
+        .catch(err => { console.error('Không tải được sản phẩm:', err); if (!_productsSig) { _productsSig = 'static'; applyFilters(); } });
+}

@@ -4,6 +4,7 @@ public/index.html, css/, js/  Giao diện khách; public/admin.html là trang qu
 css/style.css     Giao diện tuỳ chỉnh
 js/config.js      Cấu hình shop (ship, voucher, tài khoản VietQR)  <-- sửa ở đây trước
 js/products.js    Danh sách sản phẩm (sửa giá, ảnh, tên ở đây)
+js/auth.js        Đăng nhập, đăng ký, đơn hàng của khách
 js/app.js         Logic giỏ hàng, lọc, thanh toán, lưu đơn
 
 ## Chạy thử
@@ -30,4 +31,3 @@ Phần backend nhận đơn + trang quản trị là giai đoạn tiếp theo.
 - [ ] Đặt ADMIN_PASSWORD mạnh trên Render
 - [ ] Chạy thử 1 đơn COD và 1 đơn VietQR (quét thử mã QR)
 - [ ] Giải quyết lưu trữ dữ liệu bền vững (xem phần cảnh báo)
-"# diemmy-fashion-store" 
