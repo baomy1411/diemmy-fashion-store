@@ -9,21 +9,44 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px
 .tabs{display:flex;gap:8px;margin:12px 0}.box{max-width:1100px;margin:auto;overflow-x:auto}
 form.p{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}form.p .w{grid-column:1/-1}
 .hide{display:none}
+@media (max-width:720px){body{padding:10px}h1{font-size:22px}.tabs{flex-wrap:wrap}.tabs button{flex:1 1 45%}
+table,tbody,tr,th,td{display:block}tr:first-child{display:none}tr{border:1px solid #333;border-radius:8px;margin:8px 0;padding:6px}td{border:0;padding:4px 6px}
+input,select,textarea,button{font-size:16px}}
 </style></head><body><div class="box">
 <h1>Quản trị Diễm My Fashion</h1>
 <p><a href="/" style="color:#d4af37">&larr; Về trang bán hàng</a></p>
 <div id="login"><input id="em" placeholder="Tài khoản quản trị"> <input id="pw" type="password" placeholder="Mật khẩu"> <button onclick="login()">Đăng nhập</button> <span id="err" style="color:#f66"></span></div>
 <div id="app" class="hide">
-<div class="tabs"><button onclick="tab('o')">Đơn hàng</button><button onclick="tab('p')">Sản phẩm</button><button onclick="dl('/admin/export/orders.csv','don-hang.csv')">Tải đơn hàng (Excel)</button><button onclick="dl('/admin/backup.json','sao-luu.json')">Sao lưu dữ liệu</button><button class="g" onclick="logout()">Đăng xuất</button></div>
+<div class="tabs"><button onclick="tab('o')">Đơn hàng</button><button onclick="tab('p')">Sản phẩm</button><button onclick="tab('b')">Banner</button><button onclick="dl('/admin/export/orders.csv','don-hang.csv')">Tải đơn hàng (Excel)</button><button onclick="dl('/admin/backup.json','sao-luu.json')">Sao lưu dữ liệu</button><button class="g" onclick="logout()">Đăng xuất</button></div>
 <section id="o"><h2>Đơn hàng</h2><select id="of" onchange="showO()"><option value="active">Đang xử lý</option><option value="all">Tất cả</option><option>Mới</option><option>Đã xác nhận</option><option>Đang giao</option><option>Hoàn thành</option><option>Đã huỷ</option></select><table id="ot"></table></section>
 <section id="p" class="hide"><h2>Sản phẩm</h2>
 <form class="p" id="pf" onsubmit="saveP(event)"><input type="hidden" name="id">
 <input name="name" placeholder="Tên sản phẩm *" required class="w"><select name="category"><option value="quan-ao">Quần áo</option><option value="tui-xach">Túi xách</option><option value="nuoc-hoa">Nước hoa</option><option value="giay-dep">Giày dép</option><option value="phu-kien">Phụ kiện</option></select>
-<input name="price" type="number" placeholder="Giá bán (đ) *" required><input name="originalPrice" type="number" placeholder="Giá gốc (đ)"><input name="badge" placeholder="Nhãn (HOT, MỚI...)"><input name="stock" type="number" min="0" placeholder="Tồn kho (trống = không giới hạn)">
-<div class="w">Ảnh sản phẩm: <input type="file" accept="image/*" onchange="upImg(this)"> <span id="upmsg"></span><br><img id="prev" style="max-height:90px;margin:6px 0;display:none"><input name="image" placeholder="Link ảnh (tự điền sau khi tải ảnh lên) *" required style="width:100%;box-sizing:border-box"></div><input name="sizes" placeholder="Size, cách nhau dấu phẩy *" required><input name="colors" placeholder="Màu, cách nhau dấu phẩy *" required>
+<input name="price" type="number" placeholder="Giá bán chung (đ) *"><input name="originalPrice" type="number" placeholder="Giá gốc (đ)"><input name="badge" placeholder="Nhãn (HOT, MỚI...)"><input name="stock" type="number" min="0" placeholder="Tồn kho (trống = không giới hạn)">
+<div class="w">Ảnh sản phẩm: <input type="file" accept="image/*" onchange="upImg(this)"> <span id="upmsg"></span><br><img id="prev" style="max-height:90px;margin:6px 0;display:none"><input name="image" placeholder="Link ảnh (tự điền sau khi tải ảnh lên) *" required style="width:100%;box-sizing:border-box"></div><div class="w" style="border:1px solid #333;border-radius:8px;padding:10px">
+<b>Size / dung tích bán</b> <small style="color:#999">(mỗi size có thể có giá riêng; để trống = dùng giá bán chung)</small><br>
+<small>Chọn nhanh:</small>
+<button type="button" class="g" onclick="addPreset(['S','M','L'])">S M L</button>
+<button type="button" class="g" onclick="addPreset(['S','M','L','XL'])">S M L XL</button>
+<button type="button" class="g" onclick="addPreset(['30ml','50ml','100ml'])">Nước hoa 30 / 50 / 100ml</button>
+<button type="button" class="g" onclick="addPreset(['Free size'])">Free size</button>
+<div id="sizeList"></div>
+<input id="newSize" placeholder="Thêm size khác (vd: XXL, 38, 75ml)" style="width:60%" onkeydown="if(event.key=='Enter'){event.preventDefault();addSize()}"> <button type="button" onclick="addSize()">+ Thêm size</button>
+<hr style="border-color:#333;margin:12px 0">
+<b>Màu sắc</b> <small style="color:#999">(không bắt buộc, vd nước hoa có thể bỏ trống)</small><br>
+<button type="button" class="g" onclick="addColors(['Đen','Trắng'])">Đen, Trắng</button>
+<button type="button" class="g" onclick="addColors(['Đen','Trắng','Đỏ'])">Đen, Trắng, Đỏ</button>
+<button type="button" class="g" onclick="addColors(['Be','Nâu','Xanh navy'])">Be, Nâu, Xanh navy</button>
+<div id="colorList"></div>
+<input id="newColor" placeholder="Thêm màu (vd: Đỏ đô)" style="width:60%" onkeydown="if(event.key=='Enter'){event.preventDefault();addColor()}"> <button type="button" onclick="addColor()">+ Thêm màu</button>
+</div>
 <input name="material" placeholder="Chất liệu" class="w"><textarea name="desc" placeholder="Mô tả" class="w"></textarea>
-<div class="w"><button>Lưu sản phẩm</button> <button type="button" class="g" onclick="pf.reset();pf.id.value=''">Làm mới</button></div></form>
-<table id="pt"></table></section></div></div>
+<div class="w"><button>Lưu sản phẩm</button> <button type="button" class="g" onclick="pf.reset();pf.id.value='';SZ=[];CL=[];renderVar();$('#prev').style.display='none'">Làm mới</button></div></form>
+<table id="pt"></table></section>
+<section id="b" class="hide"><h2>Banner trang chủ</h2>
+<p><small>Tối đa 10 ảnh, ảnh đầu tiên hiện trước, tự chuyển sau 5 giây. Nên dùng ảnh dọc hoặc vuông (tỉ lệ khoảng 4:5).</small></p>
+<input type="file" accept="image/*" multiple onchange="addSlides(this)"> <span id="bmsg"></span>
+<div id="bl"></div><button onclick="saveSL()">Lưu banner</button></section></div></div>
 <script>
 const $=s=>document.querySelector(s);const KEY='dmauth';let T=(JSON.parse(localStorage.getItem(KEY)||'null')||{}).token||'',P=[],O=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -32,17 +55,15 @@ async function api(p,m='GET',body){const r=await fetch('/api'+p,{method:m,header
  const d=await r.json();if(r.status===401&&T){logout();throw new Error(d.error)}if(!r.ok)throw new Error(d.error);return d}
 async function login(){try{const d=await api('/login','POST',{email:$('#em').value,password:$('#pw').value});
  if(d.user.role!=='admin')throw new Error('Tài khoản này không phải quản trị viên');T=d.token;localStorage.setItem(KEY,JSON.stringify(d));$('#err').textContent='';start()}catch(e){$('#err').textContent=e.message}}
-async function upImg(inp){const f=inp.files[0];if(!f)return;const m=$('#upmsg');m.textContent='Đang tải ảnh...';
- try{const bmp=await createImageBitmap(f),k=Math.min(1,1000/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+async function uploadFile(f){const bmp=await createImageBitmap(f),k=Math.min(1,1000/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
  const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bmp,0,0,c.width,c.height);
  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.82));
- const r=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':'image/jpeg','Authorization':'Bearer '+T},body:blob});const d=await r.json();if(!r.ok)throw new Error(d.error);
- pf.image.value=d.url;$('#prev').src=d.url;$('#prev').style.display='block';m.textContent='Đã tải lên'}catch(e){m.textContent='Lỗi: '+(e.message||'không đọc được ảnh')}}
-async function dl(p,name){try{const r=await fetch('/api'+p,{headers:{'Authorization':'Bearer '+T}});if(!r.ok)throw new Error('Không tải được ('+r.status+')');
- const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}catch(e){alert(e.message)}}
+ const r=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':'image/jpeg','Authorization':'Bearer '+T},body:blob});const d=await r.json();if(!r.ok)throw new Error(d.error);return d.url}
+async function upImg(inp){const f=inp.files[0];if(!f)return;const m=$('#upmsg');m.textContent='Đang tải ảnh...';
+ try{const u=await uploadFile(f);pf.image.value=u;$('#prev').src=u;$('#prev').style.display='block';m.textContent='Đã tải lên'}catch(e){m.textContent='Lỗi: '+(e.message||'không đọc được ảnh')}}
 function logout(){T='';localStorage.removeItem(KEY);$('#app').classList.add('hide');$('#login').classList.remove('hide')}
-function tab(t){$('#o').classList.toggle('hide',t!='o');$('#p').classList.toggle('hide',t!='p')}
-async function start(){$('#login').classList.add('hide');$('#app').classList.remove('hide');await Promise.all([loadO(),loadP()])}
+function tab(t){['o','p','b'].forEach(k=>$('#'+k).classList.toggle('hide',k!=t))}
+async function start(){$('#login').classList.add('hide');$('#app').classList.remove('hide');await Promise.all([loadO(),loadP(),loadSL()])}
 const ST=['Mới','Đã xác nhận','Đang giao','Hoàn thành','Đã huỷ'];
 async function loadO(){O=await api('/admin/orders');showO()}
 function showO(){const f=$('#of').value,A=['Mới','Đã xác nhận','Đang giao'];const L=O.filter(x=>f=='all'||(f=='active'?A.includes(x.status):x.status==f));
@@ -53,10 +74,27 @@ function showO(){const f=$('#of').value,A=['Mới','Đã xác nhận','Đang gia
 async function setS(id,s){try{await api('/admin/orders/'+id,'PATCH',{status:s});const o=O.find(x=>x.id==id);if(o)o.status=s;setTimeout(showO,300)}catch(e){alert(e.message);loadO()}}
 async function delO(id){if(confirm('Xoá hẳn đơn '+id+'? Không thể khôi phục.')){try{await api('/admin/orders/'+id,'DELETE');O=O.filter(x=>x.id!=id);showO()}catch(e){alert(e.message)}}}
 async function loadP(){P=await (await fetch('/api/products')).json();$('#pt').innerHTML='<tr><th>Tên</th><th>Giá</th><th>Tồn kho</th><th></th></tr>'+
- P.map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${vnd(p.price)}</td><td>${p.stock==null?'∞':p.stock}</td><td><button class="g" onclick="editP(${i})">Sửa</button> <button class="r" onclick="delP(${i})">Xoá</button></td></tr>`).join('')}
-function editP(i){const p=P[i],f=$('#pf');for(const k of ['id','name','category','price','originalPrice','badge','stock','image','material','desc'])f[k].value=p[k]??'';f.sizes.value=p.sizes.join(', ');$('#prev').src=p.image||'';$('#prev').style.display=p.image?'block':'none';f.colors.value=p.colors.join(', ');scrollTo(0,0)}
-async function saveP(e){e.preventDefault();const f=e.target,b=Object.fromEntries(new FormData(f));b.sizes=b.sizes.split(',').map(s=>s.trim());b.colors=b.colors.split(',').map(s=>s.trim());
- try{await api('/admin/products'+(b.id?'/'+b.id:''),b.id?'PUT':'POST',b);f.reset();f.id.value='';loadP()}catch(e){alert(e.message)}}
+ P.map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${p.sizePrices&&Object.keys(p.sizePrices).length?'Từ ':''}${vnd(Math.min(p.price,...(p.sizes||[]).map(s=>(p.sizePrices||{})[s]||p.price)))}</td><td>${p.stock==null?'∞':p.stock}</td><td><button class="g" onclick="editP(${i})">Sửa</button> <button class="r" onclick="delP(${i})">Xoá</button></td></tr>`).join('')}
+function editP(i){const p=P[i],f=$('#pf');for(const k of ['id','name','category','price','originalPrice','badge','stock','image','material','desc'])f[k].value=p[k]??'';SZ=(p.sizes||[]).map(l=>({label:l,price:(p.sizePrices||{})[l]||''}));CL=[...(p.colors||[])];renderVar();$('#prev').src=p.image||'';$('#prev').style.display=p.image?'block':'none';scrollTo(0,0)}
+async function saveP(e){e.preventDefault();const f=e.target,b=Object.fromEntries(new FormData(f));
+ if(!SZ.length){alert('Hãy chọn ít nhất 1 size / dung tích');return}
+ b.sizes=SZ.map(s=>s.label);b.sizePrices=Object.fromEntries(SZ.filter(s=>Number(s.price)>0).map(s=>[s.label,Number(s.price)]));b.colors=CL;
+ if(!Number(b.price)&&!Object.keys(b.sizePrices).length){alert('Hãy nhập giá bán chung hoặc giá riêng cho từng size');return}
+ try{await api('/admin/products'+(b.id?'/'+b.id:''),b.id?'PUT':'POST',b);f.reset();f.id.value='';SZ=[];CL=[];renderVar();$('#prev').style.display='none';loadP()}catch(e){alert(e.message)}}
+let SZ=[],CL=[],SL=[];
+function renderVar(){$('#sizeList').innerHTML=SZ.map((s,i)=>`<div style="display:flex;gap:6px;margin:6px 0;align-items:center"><b style="min-width:70px">${esc(s.label)}</b><input type="number" min="0" placeholder="Giá riêng (đ), trống = giá chung" value="${esc(s.price)}" oninput="SZ[${i}].price=this.value" style="flex:1"><button type="button" class="r" onclick="SZ.splice(${i},1);renderVar()">✕</button></div>`).join('')||'<small style="color:#999">Chưa có size nào</small>';
+ $('#colorList').innerHTML=CL.map((c,i)=>`<span style="display:inline-block;background:#222;border:1px solid #444;border-radius:16px;padding:4px 10px;margin:6px 6px 0 0">${esc(c)} <a href="#" onclick="CL.splice(${i},1);renderVar();return false" style="color:#f66;text-decoration:none">✕</a></span>`).join('')||'<small style="color:#999">Chưa có màu nào</small>'}
+const cleanLbl=s=>s.replace(/['"\\<>&`]/g,'').trim();
+function addPreset(a){a.forEach(l=>{if(!SZ.some(s=>s.label==l))SZ.push({label:l,price:''})});renderVar()}
+function addSize(){const v=cleanLbl($('#newSize').value);if(v)addPreset([v]);$('#newSize').value=''}
+function addColors(a){a.forEach(c=>{if(!CL.includes(c))CL.push(c)});renderVar()}
+function addColor(){const v=cleanLbl($('#newColor').value);if(v)addColors([v]);$('#newColor').value=''}
+// ---- Banner trang chủ ----
+function renderSL(){$('#bl').innerHTML=SL.map((s,i)=>`<div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap"><img src="${esc(s.src)}" style="height:70px;width:56px;object-fit:cover;border-radius:6px"><input value="${esc(s.title)}" placeholder="Tiêu đề trên ảnh (không bắt buộc)" oninput="SL[${i}].title=this.value" style="flex:1;min-width:160px"><button type="button" class="g" onclick="mvSL(${i},-1)">↑</button><button type="button" class="g" onclick="mvSL(${i},1)">↓</button><button type="button" class="r" onclick="SL.splice(${i},1);renderSL()">✕</button></div>`).join('')||'Chưa có ảnh nào: trang chủ đang dùng ảnh mặc định.'}
+function mvSL(i,d){const j=i+d;if(j<0||j>=SL.length)return;[SL[i],SL[j]]=[SL[j],SL[i]];renderSL()}
+async function addSlides(inp){const m=$('#bmsg');for(const f of inp.files){if(SL.length>=10){m.textContent='Tối đa 10 ảnh';break}m.textContent='Đang tải '+f.name+'...';try{SL.push({src:await uploadFile(f),title:''})}catch(e){m.textContent='Lỗi: '+(e.message||'không đọc được ảnh');return}}inp.value='';m.textContent='Đã tải xong, nhớ bấm "Lưu banner"';renderSL()}
+async function saveSL(){try{await api('/admin/slides','PUT',{slides:SL});alert('Đã lưu banner. Trang chủ sẽ hiện ảnh mới.')}catch(e){alert(e.message)}}
+async function loadSL(){SL=await (await fetch('/api/slides')).json();renderSL()}
 async function delP(i){if(confirm('Xoá "'+P[i].name+'"?')){await api('/admin/products/'+P[i].id,'DELETE');loadP()}}
-$('#pw').addEventListener('keydown',e=>e.key=='Enter'&&login());if(T)start().catch(()=>{});
+renderVar();$('#pw').addEventListener('keydown',e=>e.key=='Enter'&&login());if(T)start().catch(()=>{});
 </script></body></html>

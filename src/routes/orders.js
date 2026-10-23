@@ -47,7 +47,10 @@ router.post('/orders', wrap(async (req, res) => {
   for (const it of cart) {
     const p = found.find(x => x.id === it.id), qty = Math.floor(Number(it.qty));
     if (!p || !(qty >= 1 && qty <= 99)) return res.status(400).json({ error: 'Có sản phẩm trong giỏ không còn bán, vui lòng tải lại trang' });
-    items.push({ id: p.id, name: p.name, price: p.price, size: str(it.size, 20), color: str(it.color, 40), qty });
+    const size = str(it.size, 20), color = str(it.color, 40);
+    if (((p.sizes || []).length && !p.sizes.includes(size)) || ((p.colors || []).length && !p.colors.includes(color)))
+      return res.status(400).json({ error: 'Sản phẩm trong giỏ đã thay đổi, vui lòng tải lại trang' });
+    items.push({ id: p.id, name: p.name, price: (p.sizePrices && p.sizePrices[size]) || p.price, size, color, qty });
   }
   if (!items.length) return res.status(400).json({ error: 'Giỏ hàng trống' });
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);

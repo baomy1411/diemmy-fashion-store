@@ -15,8 +15,8 @@ src/routes/admin.js    Xuất đơn hàng ra Excel (CSV), sao lưu dữ liệu
 public/chinh-sach.html Chính sách đổi trả, vận chuyển, bảo mật (nội dung mẫu, cần xem lại)
 public/index.html      Trang bán hàng
 public/admin.html      Trang quản trị
-public/js/             config (tài khoản ngân hàng) | products (sản phẩm mẫu dự phòng) | state | utils |
-                       catalog | quickview | cart | wishlist | checkout | main | auth
+public/js/             config (tài khoản ngân hàng) | products (sản phẩm mẫu dự phòng) | state | utils | catalog | quickview |
+                       cart | wishlist | checkout | slider (ảnh đầu trang) | main | auth
 data/products.json     Sản phẩm mẫu nhập vào MongoDB lần chạy đầu
 
 Thứ tự nạp các file trong public/js được khai báo ở cuối public/index.html, đừng đổi thứ tự.

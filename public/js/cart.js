@@ -39,7 +39,7 @@
                         <img src="${item.image}" alt="${item.name}" class="w-16 h-20 object-cover rounded border border-neutral-800">
                         <div class="flex-1 text-xs space-y-1">
                             <h4 class="font-semibold text-white line-clamp-1">${item.name}</h4>
-                            <p class="text-[10px] text-neutral-400">Size: ${item.size} | Màu: ${item.color}</p>
+                            <p class="text-[10px] text-neutral-400">Size: ${item.size}${item.color ? ' | Màu: ' + item.color : ''}</p>
                             <div class="text-gold font-bold">${formatVND(item.price)}</div>
                             <div class="flex items-center justify-between pt-1">
                                 <div class="flex items-center border border-neutral-800 rounded bg-neutral-950">

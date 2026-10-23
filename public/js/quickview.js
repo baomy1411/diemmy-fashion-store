@@ -12,15 +12,15 @@
                     <i class="fas fa-times"></i>
                 </button>
                 <div class="md:w-1/2 bg-neutral-950 p-4 flex items-center justify-center">
-                    <img src="${product.image}" alt="${product.name}" class="max-h-[350px] w-full object-cover rounded-xl border border-neutral-800">
+                    <img src="${product.image}" alt="${product.name}" class="max-h-[240px] md:max-h-[350px] w-full object-cover rounded-xl border border-neutral-800">
                 </div>
                 <div class="md:w-1/2 p-6 flex flex-col justify-between space-y-4">
                     <div>
                         <span class="text-xs font-bold text-gold uppercase tracking-widest">${product.category}</span>
                         <h3 class="text-xl font-bold font-serif-luxury text-white mt-1">${product.name}</h3>
                         <div class="flex items-center space-x-2 mt-2">
-                            <span class="text-lg font-bold text-gold">${formatVND(product.price)}</span>
-                            ${product.originalPrice ? `<span class="text-xs text-neutral-500 line-through">${formatVND(product.originalPrice)}</span>` : ''}
+                            <span id="quickViewPrice" class="text-lg font-bold text-gold"></span>
+                            <span id="quickViewOrig" class="text-xs text-neutral-500 line-through"></span>
                         </div>
                         <p class="text-xs text-neutral-400 mt-3 leading-relaxed">${product.desc}</p>
                     </div>
@@ -29,19 +29,19 @@
                         <!-- Size selection -->
                         <div>
                             <label class="block text-xs font-semibold text-neutral-300 mb-1">Kích Thước (Size):</label>
-                            <div class="flex gap-2" id="quickViewSizes">
+                            <div class="flex flex-wrap gap-2" id="quickViewSizes">
                                 ${product.sizes.map((s, idx) => `
-                                    <button onclick="selectSize('${s}')" class="size-btn text-xs px-3 py-1.5 rounded border border-neutral-700 text-neutral-300 hover:border-gold hover:text-gold ${idx === 0 ? 'border-gold text-gold font-bold' : ''}">${s}</button>
+                                    <button onclick="selectSize('${s}')" data-v="${s}" class="size-btn text-xs px-3 py-1.5 rounded border border-neutral-700 text-neutral-300 hover:border-gold hover:text-gold ${idx === 0 ? 'border-gold text-gold font-bold' : ''}">${s}${hasVariantPrices(product) ? ' · ' + formatVND(priceOf(product, s)) : ''}</button>
                                 `).join('')}
                             </div>
                         </div>
 
                         <!-- Color selection -->
-                        <div>
+                        <div class=\"${product.colors.length ? '' : 'hidden'}\">
                             <label class="block text-xs font-semibold text-neutral-300 mb-1">Màu Sắc:</label>
-                            <div class="flex gap-2" id="quickViewColors">
+                            <div class="flex flex-wrap gap-2" id="quickViewColors">
                                 ${product.colors.map((c, idx) => `
-                                    <button onclick="selectColor('${c}')" class="color-btn text-xs px-3 py-1 rounded border border-neutral-700 text-neutral-300 hover:border-gold ${idx === 0 ? 'border-gold text-gold font-bold' : ''}">${c}</button>
+                                    <button onclick="selectColor('${c}')" data-v="${c}" class="color-btn text-xs px-3 py-1 rounded border border-neutral-700 text-neutral-300 hover:border-gold ${idx === 0 ? 'border-gold text-gold font-bold' : ''}">${c}</button>
                                 `).join('')}
                             </div>
                         </div>
@@ -67,7 +67,8 @@
 
             // Set default selected attributes
             selectedProductForQuickView.selectedSize = product.sizes[0];
-            selectedProductForQuickView.selectedColor = product.colors[0];
+            selectedProductForQuickView.selectedColor = product.colors[0] || '';
+            updateQuickViewPrice();
             selectedProductForQuickView.selectedQty = 1;
 
             modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -81,8 +82,9 @@
 
         function selectSize(size) {
             selectedProductForQuickView.selectedSize = size;
+            updateQuickViewPrice();
             document.querySelectorAll('#quickViewSizes .size-btn').forEach(btn => {
-                if(btn.innerText === size) {
+                if(btn.dataset.v === size) {
                     btn.classList.add('border-gold', 'text-gold', 'font-bold');
                 } else {
                     btn.classList.remove('border-gold', 'text-gold', 'font-bold');
@@ -93,7 +95,7 @@
         function selectColor(color) {
             selectedProductForQuickView.selectedColor = color;
             document.querySelectorAll('#quickViewColors .color-btn').forEach(btn => {
-                if(btn.innerText === color) {
+                if(btn.dataset.v === color) {
                     btn.classList.add('border-gold', 'text-gold', 'font-bold');
                 } else {
                     btn.classList.remove('border-gold', 'text-gold', 'font-bold');
@@ -132,7 +134,7 @@
                     key: cartItemKey,
                     id: selectedProductForQuickView.id,
                     name: selectedProductForQuickView.name,
-                    price: selectedProductForQuickView.price,
+                    price: priceOf(selectedProductForQuickView, selectedProductForQuickView.selectedSize),
                     image: selectedProductForQuickView.image,
                     size: selectedProductForQuickView.selectedSize,
                     color: selectedProductForQuickView.selectedColor,
@@ -144,3 +146,11 @@
             closeQuickView();
             toggleCartDrawer(true);
         }
+
+// Giá hiển thị theo size đang chọn; giá gốc gạch ngang chỉ hiện khi size đó dùng giá chung
+function updateQuickViewPrice() {
+    const p = selectedProductForQuickView; if (!p) return;
+    const custom = !!(p.sizePrices && p.sizePrices[p.selectedSize]);
+    document.getElementById('quickViewPrice').innerText = formatVND(priceOf(p, p.selectedSize));
+    document.getElementById('quickViewOrig').innerText = (p.originalPrice && !custom && !hasVariantPrices(p)) ? formatVND(p.originalPrice) : '';
+}

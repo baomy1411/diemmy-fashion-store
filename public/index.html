@@ -79,7 +79,7 @@
 
             <!-- Search Bar (Desktop) -->
             <div class="hidden md:flex flex-1 max-w-md mx-8 relative">
-                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Tìm kiếm váy, túi xách, nước hoa, phụ kiện cao cấp..." 
+                <input type="text" id="searchInput" onkeyup="handleSearch(event)" placeholder="Tìm kiếm váy, túi xách, nước hoa, phụ kiện cao cấp..." 
                     class="w-full bg-neutral-900/80 border border-neutral-700/80 text-sm text-neutral-200 placeholder-neutral-500 rounded-full py-2.5 pl-5 pr-12 focus:outline-none focus:border-gold transition duration-200">
                 <button class="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-neutral-400 hover:text-gold transition">
                     <i class="fas fa-search"></i>
@@ -112,7 +112,7 @@
         <!-- Mobile Search Row -->
         <div class="md:hidden px-4 pb-3">
             <div class="relative">
-                <input type="text" id="mobileSearchInput" onkeyup="handleMobileSearch()" placeholder="Tìm kiếm sản phẩm..." 
+                <input type="text" id="mobileSearchInput" onkeyup="handleMobileSearch(event)" placeholder="Tìm kiếm sản phẩm..." 
                     class="w-full bg-neutral-900 border border-neutral-700 text-sm text-neutral-200 placeholder-neutral-500 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:border-gold">
                 <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500"></i>
             </div>
@@ -170,9 +170,6 @@
                         <span>Khám Phá Ngay</span>
                         <i class="fas fa-arrow-right text-xs"></i>
                     </button>
-                    <button onclick="filterCategory('tui-xach')" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 font-semibold px-6 py-3.5 rounded-full transition duration-300 text-xs tracking-widest uppercase">
-                        BST Túi Xách VIP
-                    </button>
                 </div>
             </div>
 
@@ -180,7 +177,7 @@
             <div class="lg:col-span-5 flex justify-center">
                 <div class="relative w-full max-w-md">
                     <div class="absolute -inset-1 bg-gradient-to-r from-gold to-amber-600 rounded-2xl blur opacity-25"></div>
-                    <div class="relative rounded-2xl overflow-hidden border border-gold/30 bg-neutral-900 shadow-2xl">
+                    <div id="heroSlider" class="relative rounded-2xl overflow-hidden border border-gold/30 bg-neutral-900 shadow-2xl h-[320px] sm:h-[380px] lg:h-[420px]" role="region" aria-roledescription="carousel" aria-label="Ảnh nổi bật">
                         <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800" alt="Diễm My Fashion Runway" class="w-full h-[420px] object-cover hover:scale-105 transition duration-700">
                         <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/60 to-transparent p-6">
                             <span class="text-xs text-gold uppercase tracking-widest font-semibold">New Arrival</span>
@@ -292,7 +289,7 @@
 
     <!-- MODAL: QUICK VIEW / PRODUCT DETAILS -->
     <div id="quickViewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 modal-blur opacity-0 pointer-events-none transition-all duration-300">
-        <div class="bg-neutral-900 border border-gold/40 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative transform scale-95 transition-all duration-300 max-h-[90vh] flex flex-col md:flex-row" id="quickViewContent">
+        <div class="bg-neutral-900 border border-gold/40 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto flex flex-col md:flex-row" id="quickViewContent">
             <!-- Dynamic Content Injected By JS -->
         </div>
     </div>
@@ -464,6 +461,7 @@
     <script src="js/cart.js"></script>
     <script src="js/wishlist.js"></script>
     <script src="js/checkout.js"></script>
+    <script src="js/slider.js"></script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
 

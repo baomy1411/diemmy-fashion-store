@@ -13,7 +13,10 @@
            ========================================================================== */
         function renderCategoryTabs() {
             const tabsContainer = document.getElementById('category-tabs');
-            tabsContainer.innerHTML = categories.map(cat => `
+            // Chỉ hiện danh mục đang có sản phẩm (không còn tab trống)
+            const visible = categories.filter(c => c.id === 'all' || products.some(p => p.category === c.id));
+            if (!visible.some(c => c.id === currentCategory)) currentCategory = 'all';
+            tabsContainer.innerHTML = visible.map(cat => `
                 <button onclick="filterCategory('${cat.id}')" 
                     class="px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition duration-200 ${currentCategory === cat.id ? 'bg-gold text-black shadow-md' : 'bg-neutral-900 border border-neutral-800 text-neutral-300 hover:border-gold'}">
                     ${cat.label}
@@ -70,8 +73,8 @@
 
                         <div class="pt-2 border-t border-neutral-800/80 flex items-center justify-between">
                             <div>
-                                <div class="text-sm font-bold text-gold">${formatVND(p.price)}</div>
-                                ${p.originalPrice ? `<div class="text-[11px] text-neutral-500 line-through">${formatVND(p.originalPrice)}</div>` : ''}
+                                <div class="text-sm font-bold text-gold">${hasVariantPrices(p) ? 'Từ ' : ''}${formatVND(fromPrice(p))}</div>
+                                ${p.originalPrice && !hasVariantPrices(p) ? `<div class="text-[11px] text-neutral-500 line-through">${formatVND(p.originalPrice)}</div>` : ''}
                             </div>
                             <button onclick="openQuickView('${p.id}')" class="w-9 h-9 rounded-lg bg-neutral-800 border border-neutral-700 hover:bg-gold hover:text-black text-neutral-200 flex items-center justify-center transition">
                                 <i class="fas fa-cart-plus"></i>
@@ -102,11 +105,11 @@
             // 2. Price filter
             const priceVal = document.getElementById('priceFilter').value;
             if (priceVal === 'under-1m') {
-                result = result.filter(p => p.price < 1000000);
+                result = result.filter(p => fromPrice(p) < 1000000);
             } else if (priceVal === '1m-3m') {
-                result = result.filter(p => p.price >= 1000000 && p.price <= 3000000);
+                result = result.filter(p => fromPrice(p) >= 1000000 && fromPrice(p) <= 3000000);
             } else if (priceVal === 'above-3m') {
-                result = result.filter(p => p.price > 3000000);
+                result = result.filter(p => fromPrice(p) > 3000000);
             }
 
             // 3. Search Keyword
@@ -118,23 +121,34 @@
             // 4. Sort filter
             const sortVal = document.getElementById('sortBy').value;
             if (sortVal === 'price-asc') {
-                result.sort((a, b) => a.price - b.price);
+                result.sort((a, b) => fromPrice(a) - fromPrice(b));
             } else if (sortVal === 'price-desc') {
-                result.sort((a, b) => b.price - a.price);
+                result.sort((a, b) => fromPrice(b) - fromPrice(a));
             } else if (sortVal === 'rating') {
                 result.sort((a, b) => b.rating - a.rating);
             }
 
             renderProducts(result);
         }
-
-        function handleSearch() {
+let _searchTimer = null, _lastQuery = '';
+// Gõ ở ô nào thì ô kia cũng cập nhật; kết quả nằm ở phần sản phẩm nên tự cuộn xuống đó
+function runSearch(e, fromId, otherId) {
+            const q = document.getElementById(fromId).value;
+            document.getElementById(otherId).value = q;
             applyFilters();
+            const force = e && e.key === 'Enter';
+            if (q.trim() === _lastQuery && !force) return;
+            _lastQuery = q.trim();
+            clearTimeout(_searchTimer);
+            if (_lastQuery) _searchTimer = setTimeout(revealResults, force ? 0 : 350);
         }
-
-        function handleMobileSearch() {
-            applyFilters();
+        function handleSearch(e) { runSearch(e, 'searchInput', 'mobileSearchInput'); }
+        function revealResults() {
+            const sec = document.getElementById('products-section'), header = document.querySelector('header');
+            const delta = sec.getBoundingClientRect().top - ((header ? header.offsetHeight : 0) + 8);
+            if (Math.abs(delta) > 40) window.scrollTo({ top: window.scrollY + delta, behavior: 'smooth' });
         }
+function handleMobileSearch(e) { runSearch(e, 'mobileSearchInput', 'searchInput'); }
 
         function resetFilters() {
             document.getElementById('priceFilter').value = 'all';
@@ -165,20 +179,21 @@ function loadProducts() {
             _productsSig = sig;
             products = list;
             syncCartWithCatalog();
+            renderCategoryTabs();
             applyFilters();
         })
         .catch(err => {
             console.error('Không tải được sản phẩm:', err);
-            if (!_productsSig) { _productsSig = 'static'; applyFilters(); }
+            if (!_productsSig) { _productsSig = 'static'; renderCategoryTabs(); applyFilters(); }
         });
 }
 
 // Đồng bộ giỏ hàng với giá/tên mới nhất; bỏ sản phẩm đã bị xoá khỏi cửa hàng
 function syncCartWithCatalog() {
     const before = JSON.stringify(cart);
-    cart = cart.filter(i => products.some(p => p.id === i.id)).map(i => {
+    cart = cart.filter(i => products.some(p => p.id === i.id && (!(p.sizes || []).length || p.sizes.includes(i.size)) && (!(p.colors || []).length || p.colors.includes(i.color)))).map(i => {
         const p = products.find(x => x.id === i.id);
-        return { ...i, price: p.price, name: p.name, image: p.image };
+        return { ...i, price: priceOf(p, i.size), name: p.name, image: p.image };
     });
     if (JSON.stringify(cart) !== before) { saveCart(); renderCartDrawer(); calculateCartTotals(); }
 }

@@ -3,6 +3,7 @@
     renderCategoryTabs();
     loadSettings();
     loadProducts();
+    loadSlides();
     setInterval(loadProducts, 30000);                                   // tự làm mới sản phẩm mỗi 30 giây
     document.addEventListener('visibilitychange', () => { if (!document.hidden) loadProducts(); });
     updateCartBadge();
