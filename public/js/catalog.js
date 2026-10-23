@@ -42,6 +42,7 @@
                         <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         
                         <!-- Badge -->
+                        ${p.stock === 0 ? '<span class="absolute inset-0 z-10 bg-black/65 flex items-center justify-center text-white font-bold text-sm tracking-widest pointer-events-none">HẾT HÀNG</span>' : ''}
                         ${p.badge ? `<span class="absolute top-3 left-3 bg-gold text-black font-bold text-[10px] px-2.5 py-1 rounded-md uppercase tracking-wider shadow">${p.badge}</span>` : ''}
 
                         <!-- Wishlist Button -->

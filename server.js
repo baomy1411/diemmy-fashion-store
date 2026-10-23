@@ -18,6 +18,7 @@ app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next
 app.use('/api', require('./src/routes/auth'));
 app.use('/api', require('./src/routes/products'));
 app.use('/api', require('./src/routes/orders'));
+app.use('/api', require('./src/routes/admin'));
 app.use(require('./src/routes/upload'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'Không tìm thấy' }));
 app.use(express.static(path.join(__dirname, 'public')));

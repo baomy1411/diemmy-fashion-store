@@ -40,7 +40,7 @@
             body: JSON.stringify({
                 orderId: currentOrderId, phone, voucher: activeVoucherCode,
                 name: document.getElementById('custName').value, address: document.getElementById('custAddress').value,
-                notes: document.getElementById('custNotes').value,
+                notes: document.getElementById('custNotes').value, email: document.getElementById('custEmail').value,
                 payment: document.querySelector('input[name="paymentMethod"]:checked').value,
                 items: cart.map(i => ({ id: i.id, size: i.size, color: i.color, qty: i.qty }))
             })

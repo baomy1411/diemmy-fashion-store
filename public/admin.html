@@ -14,12 +14,12 @@ form.p{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap
 <p><a href="/" style="color:#d4af37">&larr; Về trang bán hàng</a></p>
 <div id="login"><input id="em" placeholder="Tài khoản quản trị"> <input id="pw" type="password" placeholder="Mật khẩu"> <button onclick="login()">Đăng nhập</button> <span id="err" style="color:#f66"></span></div>
 <div id="app" class="hide">
-<div class="tabs"><button onclick="tab('o')">Đơn hàng</button><button onclick="tab('p')">Sản phẩm</button><button class="g" onclick="logout()">Đăng xuất</button></div>
+<div class="tabs"><button onclick="tab('o')">Đơn hàng</button><button onclick="tab('p')">Sản phẩm</button><button onclick="dl('/admin/export/orders.csv','don-hang.csv')">Tải đơn hàng (Excel)</button><button onclick="dl('/admin/backup.json','sao-luu.json')">Sao lưu dữ liệu</button><button class="g" onclick="logout()">Đăng xuất</button></div>
 <section id="o"><h2>Đơn hàng</h2><select id="of" onchange="showO()"><option value="active">Đang xử lý</option><option value="all">Tất cả</option><option>Mới</option><option>Đã xác nhận</option><option>Đang giao</option><option>Hoàn thành</option><option>Đã huỷ</option></select><table id="ot"></table></section>
 <section id="p" class="hide"><h2>Sản phẩm</h2>
 <form class="p" id="pf" onsubmit="saveP(event)"><input type="hidden" name="id">
 <input name="name" placeholder="Tên sản phẩm *" required class="w"><select name="category"><option value="quan-ao">Quần áo</option><option value="tui-xach">Túi xách</option><option value="nuoc-hoa">Nước hoa</option><option value="giay-dep">Giày dép</option><option value="phu-kien">Phụ kiện</option></select>
-<input name="price" type="number" placeholder="Giá bán (đ) *" required><input name="originalPrice" type="number" placeholder="Giá gốc (đ)"><input name="badge" placeholder="Nhãn (HOT, MỚI...)">
+<input name="price" type="number" placeholder="Giá bán (đ) *" required><input name="originalPrice" type="number" placeholder="Giá gốc (đ)"><input name="badge" placeholder="Nhãn (HOT, MỚI...)"><input name="stock" type="number" min="0" placeholder="Tồn kho (trống = không giới hạn)">
 <div class="w">Ảnh sản phẩm: <input type="file" accept="image/*" onchange="upImg(this)"> <span id="upmsg"></span><br><img id="prev" style="max-height:90px;margin:6px 0;display:none"><input name="image" placeholder="Link ảnh (tự điền sau khi tải ảnh lên) *" required style="width:100%;box-sizing:border-box"></div><input name="sizes" placeholder="Size, cách nhau dấu phẩy *" required><input name="colors" placeholder="Màu, cách nhau dấu phẩy *" required>
 <input name="material" placeholder="Chất liệu" class="w"><textarea name="desc" placeholder="Mô tả" class="w"></textarea>
 <div class="w"><button>Lưu sản phẩm</button> <button type="button" class="g" onclick="pf.reset();pf.id.value=''">Làm mới</button></div></form>
@@ -38,6 +38,8 @@ async function upImg(inp){const f=inp.files[0];if(!f)return;const m=$('#upmsg');
  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.82));
  const r=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':'image/jpeg','Authorization':'Bearer '+T},body:blob});const d=await r.json();if(!r.ok)throw new Error(d.error);
  pf.image.value=d.url;$('#prev').src=d.url;$('#prev').style.display='block';m.textContent='Đã tải lên'}catch(e){m.textContent='Lỗi: '+(e.message||'không đọc được ảnh')}}
+async function dl(p,name){try{const r=await fetch('/api'+p,{headers:{'Authorization':'Bearer '+T}});if(!r.ok)throw new Error('Không tải được ('+r.status+')');
+ const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}catch(e){alert(e.message)}}
 function logout(){T='';localStorage.removeItem(KEY);$('#app').classList.add('hide');$('#login').classList.remove('hide')}
 function tab(t){$('#o').classList.toggle('hide',t!='o');$('#p').classList.toggle('hide',t!='p')}
 async function start(){$('#login').classList.add('hide');$('#app').classList.remove('hide');await Promise.all([loadO(),loadP()])}
@@ -46,13 +48,13 @@ async function loadO(){O=await api('/admin/orders');showO()}
 function showO(){const f=$('#of').value,A=['Mới','Đã xác nhận','Đang giao'];const L=O.filter(x=>f=='all'||(f=='active'?A.includes(x.status):x.status==f));
  $('#ot').innerHTML='<tr><th>Mã / Giờ</th><th>Khách</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr>'+(L.length?'':'<tr><td colspan="5">Không có đơn nào</td></tr>')+
  L.map(x=>`<tr><td>${esc(x.id)}<br><small>${new Date(x.createdAt).toLocaleString('vi-VN')}</small></td><td>${esc(x.name)}<br><a style="color:#d4af37" href="tel:${esc(x.phone)}">${esc(x.phone)}</a><br><small>${esc(x.address)}</small>${x.notes?'<br><small>Ghi chú: '+esc(x.notes)+'</small>':''}</td>
- <td>${x.items.map(i=>`${esc(i.name)} (${esc(i.size)}/${esc(i.color)}) x${i.qty}`).join('<br>')}</td><td>${vnd(x.total)}<br><small>${x.payment=='VIETQR'?'Chuyển khoản':'COD'}</small></td>
+ <td>${x.items.map(i=>`${esc(i.name)} (${esc(i.size)}/${esc(i.color)}) x${i.qty}`).join('<br>')}</td><td>${vnd(x.total)}<br><small>${x.payment=='VIETQR'?'Chuyển khoản':'COD'}${x.paid?' · <b style="color:#6c6">Đã nhận tiền</b>':(x.paidAmount?' · <b style="color:#e96">Mới nhận '+vnd(x.paidAmount)+'</b>':'')}</small></td>
  <td><select onchange="setS('${esc(x.id)}',this.value)">${ST.map(s=>`<option ${s==x.status?'selected':''}>${s}</option>`).join('')}</select>${x.status=='Đã huỷ'?` <button class="r" onclick="delO('${esc(x.id)}')">Xoá đơn</button>`:''}</td></tr>`).join('')}
-async function setS(id,s){try{await api('/admin/orders/'+id,'PATCH',{status:s});const o=O.find(x=>x.id==id);if(o)o.status=s;setTimeout(showO,300)}catch(e){alert(e.message)}}
+async function setS(id,s){try{await api('/admin/orders/'+id,'PATCH',{status:s});const o=O.find(x=>x.id==id);if(o)o.status=s;setTimeout(showO,300)}catch(e){alert(e.message);loadO()}}
 async function delO(id){if(confirm('Xoá hẳn đơn '+id+'? Không thể khôi phục.')){try{await api('/admin/orders/'+id,'DELETE');O=O.filter(x=>x.id!=id);showO()}catch(e){alert(e.message)}}}
-async function loadP(){P=await (await fetch('/api/products')).json();$('#pt').innerHTML='<tr><th>Tên</th><th>Giá</th><th></th></tr>'+
- P.map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${vnd(p.price)}</td><td><button class="g" onclick="editP(${i})">Sửa</button> <button class="r" onclick="delP(${i})">Xoá</button></td></tr>`).join('')}
-function editP(i){const p=P[i],f=$('#pf');for(const k of ['id','name','category','price','originalPrice','badge','image','material','desc'])f[k].value=p[k]??'';f.sizes.value=p.sizes.join(', ');$('#prev').src=p.image||'';$('#prev').style.display=p.image?'block':'none';f.colors.value=p.colors.join(', ');scrollTo(0,0)}
+async function loadP(){P=await (await fetch('/api/products')).json();$('#pt').innerHTML='<tr><th>Tên</th><th>Giá</th><th>Tồn kho</th><th></th></tr>'+
+ P.map((p,i)=>`<tr><td>${esc(p.name)}</td><td>${vnd(p.price)}</td><td>${p.stock==null?'∞':p.stock}</td><td><button class="g" onclick="editP(${i})">Sửa</button> <button class="r" onclick="delP(${i})">Xoá</button></td></tr>`).join('')}
+function editP(i){const p=P[i],f=$('#pf');for(const k of ['id','name','category','price','originalPrice','badge','stock','image','material','desc'])f[k].value=p[k]??'';f.sizes.value=p.sizes.join(', ');$('#prev').src=p.image||'';$('#prev').style.display=p.image?'block':'none';f.colors.value=p.colors.join(', ');scrollTo(0,0)}
 async function saveP(e){e.preventDefault();const f=e.target,b=Object.fromEntries(new FormData(f));b.sizes=b.sizes.split(',').map(s=>s.trim());b.colors=b.colors.split(',').map(s=>s.trim());
  try{await api('/admin/products'+(b.id?'/'+b.id:''),b.id?'PUT':'POST',b);f.reset();f.id.value='';loadP()}catch(e){alert(e.message)}}
 async function delP(i){if(confirm('Xoá "'+P[i].name+'"?')){await api('/admin/products/'+P[i].id,'DELETE');loadP()}}

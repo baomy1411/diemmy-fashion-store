@@ -8,7 +8,7 @@ const okImage = u => /^(https?:\/\/|\/img\/[a-f0-9]{24}$)/.test(u);   // chặn 
 const clean = (b, id) => ({
   id, name: str(b.name, 150), category: str(b.category, 30),
   price: Math.max(0, Math.round(Number(b.price)) || 0), originalPrice: Math.max(0, Math.round(Number(b.originalPrice)) || 0),
-  rating: Math.min(5, Number(b.rating) || 5), badge: str(b.badge, 20), image: str(b.image, 500),
+  rating: Math.min(5, Number(b.rating) || 5), badge: str(b.badge, 20), stock: (b.stock === '' || b.stock == null) ? null : Math.max(0, Math.floor(Number(b.stock)) || 0), image: str(b.image, 500),
   sizes: list(b.sizes), colors: list(b.colors), material: str(b.material, 150), desc: str(b.desc, 800)
 });
 const problem = p => !p.name || !p.price || !p.sizes.length || !p.colors.length ? 'Thiếu tên, giá, size hoặc màu'

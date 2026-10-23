@@ -12,6 +12,7 @@ const config = {
   baseUrl: env.BASE_URL || env.RENDER_EXTERNAL_URL,
   brevoKey: env.BREVO_API_KEY,
   mailFrom: env.MAIL_FROM,
+  sepayKey: env.SEPAY_API_KEY,
   telegramToken: env.TELEGRAM_BOT_TOKEN,
   telegramChat: env.TELEGRAM_CHAT_ID,
   // Giá trị đơn hàng: CHỈ sửa ở đây (trang web tự lấy phí ship từ /api/config)

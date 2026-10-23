@@ -11,6 +11,8 @@ src/routes/auth.js     Đăng ký, đăng nhập, quên và đặt lại mật k
 src/routes/products.js Sản phẩm (khách xem, admin thêm/sửa/xoá)
 src/routes/orders.js   Đơn hàng, mã giảm giá, phí ship, quản lý đơn
 src/routes/upload.js   Tải ảnh lên và phục vụ ảnh
+src/routes/admin.js    Xuất đơn hàng ra Excel (CSV), sao lưu dữ liệu
+public/chinh-sach.html Chính sách đổi trả, vận chuyển, bảo mật (nội dung mẫu, cần xem lại)
 public/index.html      Trang bán hàng
 public/admin.html      Trang quản trị
 public/js/             config (tài khoản ngân hàng) | products (sản phẩm mẫu dự phòng) | state | utils |
@@ -27,4 +29,4 @@ npm start  ->  http://localhost:3000
 ## Đưa lên Render
 Build: npm install   Start: npm start
 Environment: MONGODB_URI, ADMIN_PASSWORD, (tuỳ chọn) ADMIN_EMAIL, BASE_URL, BREVO_API_KEY, MAIL_FROM,
-TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+SEPAY_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID

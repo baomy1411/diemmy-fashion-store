@@ -105,6 +105,8 @@
             let current = selectedProductForQuickView.selectedQty || 1;
             current += delta;
             if (current < 1) current = 1;
+            const max = selectedProductForQuickView.stock;
+            if (typeof max === 'number' && current > max) current = Math.max(1, max);
             selectedProductForQuickView.selectedQty = current;
             document.getElementById('quickViewQty').innerText = current;
         }
@@ -114,7 +116,12 @@
            ========================================================================== */
         function addSelectedToCart() {
             if (!selectedProductForQuickView) return;
-            
+            const stock = selectedProductForQuickView.stock;
+            if (stock === 0) { alert('Sản phẩm này đã hết hàng.'); return; }
+            if (typeof stock === 'number') {
+                const inCart = cart.filter(i => i.id === selectedProductForQuickView.id).reduce((s, i) => s + i.qty, 0);
+                if (inCart + (selectedProductForQuickView.selectedQty || 1) > stock) { alert(`Chỉ còn ${stock} sản phẩm (bạn đã có ${inCart} trong giỏ).`); return; }
+            }
             const cartItemKey = `${selectedProductForQuickView.id}-${selectedProductForQuickView.selectedSize}-${selectedProductForQuickView.selectedColor}`;
             const existingIndex = cart.findIndex(item => item.key === cartItemKey);
 
