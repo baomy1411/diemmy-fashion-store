@@ -9,3 +9,4 @@
         let selectedProductForQuickView = null;
 let currentOrderId = '';
 let activeVoucherCode = '';
+let lastResultCount = 0;     // số sản phẩm khớp bộ lọc/tìm kiếm gần nhất

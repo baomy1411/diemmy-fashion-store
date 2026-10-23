@@ -128,19 +128,24 @@
                 result.sort((a, b) => b.rating - a.rating);
             }
 
+            lastResultCount = result.length;
             renderProducts(result);
         }
 let _searchTimer = null, _lastQuery = '';
-// Gõ ở ô nào thì ô kia cũng cập nhật; kết quả nằm ở phần sản phẩm nên tự cuộn xuống đó
-function runSearch(e, fromId, otherId) {
+        const SEARCH_PAUSE_MS = 1200;      // ngừng gõ ngần này mới tự cuộn tới kết quả
+        // Kết quả luôn lọc ngay khi gõ. Trang CHỈ cuộn xuống khi: nhấn Enter, hoặc bạn ngừng gõ một lúc
+        // (từ khoá >= 2 ký tự và có sản phẩm khớp). Gõ chữ đầu tiên hay gõ sai (không khớp) thì không nhảy.
+        function runSearch(e, fromId, otherId) {
             const q = document.getElementById(fromId).value;
             document.getElementById(otherId).value = q;
             applyFilters();
-            const force = e && e.key === 'Enter';
-            if (q.trim() === _lastQuery && !force) return;
-            _lastQuery = q.trim();
+            const text = q.trim(), enter = !!(e && e.key === 'Enter');
+            if (text === _lastQuery && !enter) return;          // phím không làm đổi nội dung (Shift, mũi tên...)
+            _lastQuery = text;
             clearTimeout(_searchTimer);
-            if (_lastQuery) _searchTimer = setTimeout(revealResults, force ? 0 : 350);
+            if (!text) return;
+            if (enter) { revealResults(); return; }
+            _searchTimer = setTimeout(() => { if (text.length >= 2 && lastResultCount > 0) revealResults(); }, SEARCH_PAUSE_MS);
         }
         function handleSearch(e) { runSearch(e, 'searchInput', 'mobileSearchInput'); }
         function revealResults() {
